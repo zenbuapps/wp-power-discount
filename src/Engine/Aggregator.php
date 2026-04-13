@@ -30,11 +30,12 @@ final class Aggregator
                     $cart += $result->getAmount();
                     break;
                 case DiscountResult::SCOPE_SHIPPING:
-                    $shipping += $result->getAmount();
+                    // Intentionally not summed. Shipping rules are intent-only;
+                    // Phase 4 ShippingHooks consumes shippingResults() directly.
                     break;
             }
         }
 
-        return new AggregatedDiscounts($kept, $product, $cart, $shipping);
+        return new AggregatedDiscounts($kept, $product, $cart, 0.0);
     }
 }

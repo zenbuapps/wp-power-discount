@@ -32,7 +32,8 @@ final class AggregatorTest extends TestCase
         $summary = $agg->aggregate($results);
         self::assertSame(50.0, $summary->productTotal());
         self::assertSame(100.0, $summary->cartTotal());
-        self::assertSame(50.0, $summary->shippingTotal());
+        self::assertSame(0.0, $summary->shippingTotal()); // shipping is intent-only
+        self::assertCount(1, $summary->shippingResults());
         self::assertCount(4, $summary->results());
     }
 
@@ -47,5 +48,19 @@ final class AggregatorTest extends TestCase
         self::assertSame(0.0, $summary->productTotal());
         self::assertSame(25.0, $summary->cartTotal());
         self::assertCount(1, $summary->results());
+    }
+
+    public function testShippingResultsCollectedSeparately(): void
+    {
+        $agg = new Aggregator();
+        $results = [
+            new DiscountResult(1, 'free_shipping', 'shipping', 1.0, [], null, ['method' => 'remove_shipping']),
+            new DiscountResult(2, 'simple', 'product', 20.0, [1], null, []),
+        ];
+        $summary = $agg->aggregate($results);
+        self::assertSame(20.0, $summary->productTotal());
+        self::assertSame(0.0, $summary->shippingTotal());
+        self::assertCount(1, $summary->shippingResults());
+        self::assertSame('free_shipping', $summary->shippingResults()[0]->getRuleType());
     }
 }
