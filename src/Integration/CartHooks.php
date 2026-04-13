@@ -125,8 +125,19 @@ final class CartHooks
 
         $discountToDistribute = $result->getAmount();
 
-        foreach ($eligible as $entry) {
-            $share = $discountToDistribute * ($entry['line'] / $eligibleTotal);
+        $distributed = 0.0;
+        $keys = array_keys($eligible);
+        $lastKey = end($keys);
+        foreach ($eligible as $key => $entry) {
+            if ($key === $lastKey) {
+                $share = $discountToDistribute - $distributed;
+            } else {
+                $share = round($discountToDistribute * ($entry['line'] / $eligibleTotal), 2);
+                $distributed += $share;
+            }
+            if ($share <= 0) {
+                continue;
+            }
             $perUnit = $share / $entry['qty'];
             $newPrice = max(0.0, $entry['price'] - $perUnit);
             $entry['product']->set_price($newPrice);
