@@ -125,6 +125,28 @@ final class SetStrategyTest extends TestCase
         self::assertSame(200.0, $result->getAmount());
     }
 
+    public function testSetPercentageOverHundredIsCappedAtBundleTotal(): void
+    {
+        $rule = $this->rule(['bundle_size' => 2, 'method' => 'set_percentage', 'value' => 150, 'repeat' => false]);
+        $ctx = new CartContext([
+            new CartItem(1, 'A', 100.0, 1, []),
+            new CartItem(2, 'B', 100.0, 1, []),
+        ]);
+        $result = (new SetStrategy())->apply($rule, $ctx);
+        self::assertNotNull($result);
+        self::assertSame(200.0, $result->getAmount()); // bundle total 200, capped
+    }
+
+    public function testSetStrategyWithUnknownMethodReturnsNull(): void
+    {
+        $rule = $this->rule(['bundle_size' => 2, 'method' => 'nonsense', 'value' => 50]);
+        $ctx = new CartContext([
+            new CartItem(1, 'A', 100.0, 1, []),
+            new CartItem(2, 'B', 100.0, 1, []),
+        ]);
+        self::assertNull((new SetStrategy())->apply($rule, $ctx));
+    }
+
     private function rule(array $config): Rule
     {
         return new Rule(['id' => 1, 'title' => 't', 'type' => 'set', 'config' => $config]);

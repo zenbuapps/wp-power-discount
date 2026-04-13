@@ -96,8 +96,9 @@ final class SetStrategy implements DiscountStrategyInterface
                 // Discount = max(0, current total - fixed set price)
                 return $bundleTotal > $value ? $bundleTotal - $value : 0.0;
             case 'set_percentage':
-                // value is percent off (e.g. 10 = 10% off bundle)
-                return $bundleTotal * ($value / 100);
+                // value is percent off (e.g. 10 = 10% off bundle).
+                // Cap at bundleTotal to defend against misconfigured values > 100.
+                return min($bundleTotal, $bundleTotal * ($value / 100));
             case 'set_flat_off':
                 return min($value, $bundleTotal);
         }
