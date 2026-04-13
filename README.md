@@ -4,14 +4,14 @@ WooCommerce discount rules engine — Taiwan-first.
 
 ## Status
 
-**Phase 1 (Foundation + Core Strategies)** — in progress.
+**Phase 2 (Engine + WC Integration)** — complete.
 
-- Schema v1 for `wp_pd_rules` and `wp_pd_order_discounts`
-- Domain value objects (`Rule`, `CartContext`, `CartItem`, `DiscountResult`)
-- 4 core strategies: Simple / Bulk / Cart / Set
-- Full PHPUnit coverage for domain + strategies
-
-Not yet wired to WooCommerce cart hooks (Phase 2).
+- Repository with DatabaseAdapter abstraction (fully unit-tested via InMemoryDatabaseAdapter)
+- Condition system + 2 conditions: `cart_subtotal`, `date_range`
+- Filter system + 2 filters: `all_products`, `categories`
+- Engine: Calculator, Aggregator, ExclusivityResolver
+- WooCommerce hooks: `woocommerce_before_calculate_totals`, `woocommerce_cart_calculate_fees`, `woocommerce_checkout_order_processed`
+- Order discount logging to `wp_pd_order_discounts`
 
 ## Requirements
 
