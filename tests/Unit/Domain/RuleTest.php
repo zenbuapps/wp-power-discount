@@ -74,4 +74,24 @@ final class RuleTest extends TestCase
         $under = new Rule(['title' => 't', 'type' => 'simple', 'usage_limit' => 100, 'used_count' => 99]);
         self::assertFalse($under->isUsageLimitExhausted());
     }
+
+    public function testGetStartsAndEndsAtReturnRawStrings(): void
+    {
+        $rule = new Rule([
+            'title' => 't',
+            'type' => 'simple',
+            'starts_at' => '2026-04-01 00:00:00',
+            'ends_at' => '2026-04-30 23:59:59',
+        ]);
+
+        self::assertSame('2026-04-01 00:00:00', $rule->getStartsAt());
+        self::assertSame('2026-04-30 23:59:59', $rule->getEndsAt());
+    }
+
+    public function testGetStartsAndEndsAtAreNullWhenUnset(): void
+    {
+        $rule = new Rule(['title' => 't', 'type' => 'simple']);
+        self::assertNull($rule->getStartsAt());
+        self::assertNull($rule->getEndsAt());
+    }
 }

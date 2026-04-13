@@ -94,4 +94,20 @@ final class RuleRepositoryTest extends TestCase
         $found = $this->repo->findById($id);
         self::assertSame(6, $found->getUsedCount());
     }
+
+    public function testInsertPersistsDates(): void
+    {
+        $rule = new Rule([
+            'title' => 'Dated',
+            'type' => 'simple',
+            'starts_at' => '2026-04-01 00:00:00',
+            'ends_at' => '2026-04-30 23:59:59',
+            'config' => [],
+        ]);
+        $id = $this->repo->insert($rule);
+        $found = $this->repo->findById($id);
+        self::assertNotNull($found);
+        self::assertSame('2026-04-01 00:00:00', $found->getStartsAt());
+        self::assertSame('2026-04-30 23:59:59', $found->getEndsAt());
+    }
 }

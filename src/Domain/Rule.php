@@ -13,6 +13,8 @@ final class Rule
     private bool $exclusive;
     private ?int $startsAt;
     private ?int $endsAt;
+    private ?string $startsAtRaw;
+    private ?string $endsAtRaw;
     private ?int $usageLimit;
     private int $usedCount;
     private array $filters;
@@ -31,6 +33,8 @@ final class Rule
         $this->exclusive  = (bool) ($data['exclusive'] ?? false);
         $this->startsAt   = self::parseDate($data['starts_at'] ?? null);
         $this->endsAt     = self::parseDate($data['ends_at'] ?? null);
+        $this->startsAtRaw = self::normaliseRawDate($data['starts_at'] ?? null);
+        $this->endsAtRaw = self::normaliseRawDate($data['ends_at'] ?? null);
         $this->usageLimit = isset($data['usage_limit']) && $data['usage_limit'] !== null
             ? (int) $data['usage_limit']
             : null;
@@ -56,6 +60,8 @@ final class Rule
     public function getNotes(): ?string     { return $this->notes; }
     public function getUsageLimit(): ?int   { return $this->usageLimit; }
     public function getUsedCount(): int     { return $this->usedCount; }
+    public function getStartsAt(): ?string    { return $this->startsAtRaw; }
+    public function getEndsAt(): ?string      { return $this->endsAtRaw; }
 
     public function isActiveAt(int $timestamp): bool
     {
@@ -74,6 +80,17 @@ final class Rule
             return false;
         }
         return $this->usedCount >= $this->usageLimit;
+    }
+
+    private static function normaliseRawDate($value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (is_int($value)) {
+            return gmdate('Y-m-d H:i:s', $value);
+        }
+        return (string) $value;
     }
 
     private static function parseDate($value): ?int

@@ -42,15 +42,8 @@ final class RuleRepository
 
     public function findById(int $id): ?Rule
     {
-        $rows = $this->db->selectAll('SELECT_ALL_FROM:' . $this->table(), [
-            static function (array $row) use ($id): bool {
-                return (int) $row['id'] === $id;
-            },
-        ]);
-        if ($rows === []) {
-            return null;
-        }
-        return $this->hydrate($rows[0]);
+        $row = $this->db->findById($this->table(), $id);
+        return $row === null ? null : $this->hydrate($row);
     }
 
     /**
@@ -58,32 +51,17 @@ final class RuleRepository
      */
     public function getActiveRules(): array
     {
-        $rows = $this->db->selectAll('SELECT_ALL_FROM:' . $this->table(), [
-            static function (array $row): bool {
-                return (int) $row['status'] === RuleStatus::ENABLED;
-            },
-        ]);
-        usort($rows, static function (array $a, array $b): int {
-            $prio = ((int) $a['priority']) <=> ((int) $b['priority']);
-            if ($prio !== 0) {
-                return $prio;
-            }
-            return ((int) $a['id']) <=> ((int) $b['id']);
-        });
+        $rows = $this->db->findWhere(
+            $this->table(),
+            ['status' => RuleStatus::ENABLED],
+            ['priority' => 'ASC', 'id' => 'ASC']
+        );
         return array_map([$this, 'hydrate'], $rows);
     }
 
     public function incrementUsedCount(int $id): void
     {
-        $rule = $this->findById($id);
-        if ($rule === null) {
-            return;
-        }
-        $this->db->update(
-            $this->table(),
-            ['used_count' => $rule->getUsedCount() + 1],
-            ['id' => $id]
-        );
+        $this->db->incrementColumn($this->table(), 'used_count', ['id' => $id]);
     }
 
     private function table(): string
@@ -102,8 +80,8 @@ final class RuleRepository
             'status'      => $rule->getStatus(),
             'priority'    => $rule->getPriority(),
             'exclusive'   => $rule->isExclusive() ? 1 : 0,
-            'starts_at'   => null,
-            'ends_at'     => null,
+            'starts_at'   => $rule->getStartsAt(),
+            'ends_at'     => $rule->getEndsAt(),
             'usage_limit' => $rule->getUsageLimit(),
             'used_count'  => $rule->getUsedCount(),
             'filters'     => JsonSerializer::encode($rule->getFilters()),
