@@ -34,10 +34,10 @@ final class DateRangeCondition implements ConditionInterface
             return false;
         }
 
-        if ($from !== null && $from !== false && $now < $from) {
+        if ($from !== null && $now < $from) {
             return false;
         }
-        if ($to !== null && $to !== false && $now > $to) {
+        if ($to !== null && $now > $to) {
             return false;
         }
         return true;

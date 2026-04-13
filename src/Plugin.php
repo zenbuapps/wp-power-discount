@@ -86,7 +86,13 @@ final class Plugin
         $registry->register(new SetStrategy());
 
         $registry = apply_filters('power_discount_strategies', $registry);
-        return $registry instanceof StrategyRegistry ? $registry : new StrategyRegistry();
+        if (!$registry instanceof StrategyRegistry) {
+            if (function_exists('error_log')) {
+                error_log('Power Discount: power_discount_strategies filter returned non-registry type; falling back.');
+            }
+            return new StrategyRegistry();
+        }
+        return $registry;
     }
 
     private function buildConditionRegistry(): ConditionRegistry
@@ -96,7 +102,13 @@ final class Plugin
         $registry->register(new DateRangeCondition());
 
         $registry = apply_filters('power_discount_conditions', $registry);
-        return $registry instanceof ConditionRegistry ? $registry : new ConditionRegistry();
+        if (!$registry instanceof ConditionRegistry) {
+            if (function_exists('error_log')) {
+                error_log('Power Discount: power_discount_conditions filter returned non-registry type; falling back.');
+            }
+            return new ConditionRegistry();
+        }
+        return $registry;
     }
 
     private function buildFilterRegistry(): FilterRegistry
@@ -106,6 +118,12 @@ final class Plugin
         $registry->register(new CategoriesFilter());
 
         $registry = apply_filters('power_discount_filters', $registry);
-        return $registry instanceof FilterRegistry ? $registry : new FilterRegistry();
+        if (!$registry instanceof FilterRegistry) {
+            if (function_exists('error_log')) {
+                error_log('Power Discount: power_discount_filters filter returned non-registry type; falling back.');
+            }
+            return new FilterRegistry();
+        }
+        return $registry;
     }
 }

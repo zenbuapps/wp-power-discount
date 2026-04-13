@@ -140,6 +140,20 @@ final class CalculatorTest extends TestCase
         self::assertCount(0, $results);
     }
 
+    public function testUnknownRuleTypeSkipped(): void
+    {
+        $calc = $this->makeCalculator();
+        $ctx = new CartContext([new CartItem(1, 'A', 100.0, 1, [])]);
+
+        $rule = new Rule([
+            'id' => 1, 'title' => 'r', 'type' => 'unknown_type',
+            'config' => ['method' => 'percentage', 'value' => 10],
+        ]);
+
+        $results = $calc->run([$rule], $ctx);
+        self::assertCount(0, $results);
+    }
+
     private function makeCalculator(): Calculator
     {
         $strategies = new StrategyRegistry();
