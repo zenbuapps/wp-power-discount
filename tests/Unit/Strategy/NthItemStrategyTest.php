@@ -147,6 +147,20 @@ final class NthItemStrategyTest extends TestCase
         self::assertNull((new NthItemStrategy())->apply($rule, $ctx));
     }
 
+    public function testSparseTiersReturnNull(): void
+    {
+        $rule = $this->rule([
+            'tiers' => [
+                ['nth' => 1, 'method' => 'percentage', 'value' => 0],
+                ['nth' => 3, 'method' => 'percentage', 'value' => 50],
+            ],
+            'sort_by' => 'price_desc',
+            'recursive' => false,
+        ]);
+        $ctx = new CartContext([new CartItem(1, 'A', 100.0, 3, [])]);
+        self::assertNull((new NthItemStrategy())->apply($rule, $ctx));
+    }
+
     private function rule(array $config): Rule
     {
         return new Rule(['id' => 1, 'title' => 't', 'type' => 'nth_item', 'config' => $config]);

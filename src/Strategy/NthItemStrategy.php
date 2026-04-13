@@ -49,6 +49,14 @@ final class NthItemStrategy implements DiscountStrategyInterface
             return null;
         }
 
+        // Tiers must be contiguous 1..maxNth. Reject sparse configs to avoid
+        // silent over-discounting on missing positions.
+        for ($n = 1; $n <= $maxNth; $n++) {
+            if (!isset($tiersByNth[$n])) {
+                return null;
+            }
+        }
+
         // Flatten to units and sort.
         $units = [];
         foreach ($context->getItems() as $item) {
