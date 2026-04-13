@@ -24,10 +24,10 @@ final class CartSubtotalCondition implements ConditionInterface
         switch ($operator) {
             case '>=': return $subtotal >= $target;
             case '>':  return $subtotal >  $target;
-            case '=':  return $subtotal === $target;
+            case '=':  return abs($subtotal - $target) < 0.00001;
             case '<=': return $subtotal <= $target;
             case '<':  return $subtotal <  $target;
-            case '!=': return $subtotal !== $target;
+            case '!=': return abs($subtotal - $target) >= 0.00001;
         }
         return false;
     }
