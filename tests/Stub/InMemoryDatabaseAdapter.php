@@ -6,12 +6,8 @@ namespace PowerDiscount\Tests\Stub;
 use PowerDiscount\Persistence\DatabaseAdapter;
 
 /**
- * Minimal in-memory stand-in for wpdb. Tests populate rows directly via
- * insert() and then query them by primary key (id) or by full-table
- * scan using a closure passed as the first SQL param.
- *
- * This is NOT a real SQL engine. It exists purely so Repository tests can
- * assert on CRUD calls without a real database.
+ * In-memory stand-in for DatabaseAdapter. Supports the full typed query
+ * interface without requiring a real database.
  */
 final class InMemoryDatabaseAdapter implements DatabaseAdapter
 {
@@ -23,20 +19,45 @@ final class InMemoryDatabaseAdapter implements DatabaseAdapter
 
     public string $prefix = 'wp_';
 
-    public function selectAll(string $sql, array $params = []): array
+    public function findById(string $table, int $id): ?array
     {
-        [$table, $filter] = $this->parseCustomQuery($sql, $params);
-        $rows = array_values($this->tables[$table] ?? []);
-        if ($filter !== null) {
-            $rows = array_values(array_filter($rows, $filter));
-        }
-        return $rows;
+        return $this->tables[$table][$id] ?? null;
     }
 
-    public function selectOne(string $sql, array $params = []): ?array
+    public function findWhere(string $table, array $where = [], array $orderBy = []): array
     {
-        $rows = $this->selectAll($sql, $params);
-        return $rows[0] ?? null;
+        $rows = array_values($this->tables[$table] ?? []);
+        $rows = array_values(array_filter(
+            $rows,
+            static function (array $row) use ($where): bool {
+                foreach ($where as $col => $value) {
+                    if (!array_key_exists($col, $row)) {
+                        return false;
+                    }
+                    if ($row[$col] != $value) { // intentional loose compare for 0/'0'
+                        return false;
+                    }
+                }
+                return true;
+            }
+        ));
+
+        if ($orderBy !== []) {
+            usort($rows, static function (array $a, array $b) use ($orderBy): int {
+                foreach ($orderBy as $col => $direction) {
+                    $av = $a[$col] ?? null;
+                    $bv = $b[$col] ?? null;
+                    if ($av == $bv) {
+                        continue;
+                    }
+                    $cmp = ($av < $bv) ? -1 : 1;
+                    return strtoupper((string) $direction) === 'DESC' ? -$cmp : $cmp;
+                }
+                return 0;
+            });
+        }
+
+        return $rows;
     }
 
     public function insert(string $table, array $data): int
@@ -57,7 +78,7 @@ final class InMemoryDatabaseAdapter implements DatabaseAdapter
         $affected = 0;
         foreach ($this->tables[$table] as $id => $row) {
             foreach ($where as $k => $v) {
-                if (!array_key_exists($k, $row) || $row[$k] !== $v) {
+                if (!array_key_exists($k, $row) || $row[$k] != $v) {
                     continue 2;
                 }
             }
@@ -75,7 +96,7 @@ final class InMemoryDatabaseAdapter implements DatabaseAdapter
         $affected = 0;
         foreach ($this->tables[$table] as $id => $row) {
             foreach ($where as $k => $v) {
-                if (!array_key_exists($k, $row) || $row[$k] !== $v) {
+                if (!array_key_exists($k, $row) || $row[$k] != $v) {
                     continue 2;
                 }
             }
@@ -85,21 +106,24 @@ final class InMemoryDatabaseAdapter implements DatabaseAdapter
         return $affected;
     }
 
+    public function incrementColumn(string $table, string $column, array $where): void
+    {
+        if (!isset($this->tables[$table])) {
+            return;
+        }
+        foreach ($this->tables[$table] as $id => $row) {
+            foreach ($where as $k => $v) {
+                if (!array_key_exists($k, $row) || $row[$k] != $v) {
+                    continue 2;
+                }
+            }
+            $current = (int) ($row[$column] ?? 0);
+            $this->tables[$table][$id][$column] = $current + 1;
+        }
+    }
+
     public function table(string $name): string
     {
         return $this->prefix . $name;
-    }
-
-    /**
-     * @return array{0:string,1:callable|null}
-     */
-    private function parseCustomQuery(string $sql, array $params): array
-    {
-        if (strpos($sql, 'SELECT_ALL_FROM:') === 0) {
-            $table = substr($sql, strlen('SELECT_ALL_FROM:'));
-            $filter = $params[0] ?? null;
-            return [$table, is_callable($filter) ? $filter : null];
-        }
-        return ['', null];
     }
 }
