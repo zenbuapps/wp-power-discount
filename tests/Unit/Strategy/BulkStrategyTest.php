@@ -114,6 +114,26 @@ final class BulkStrategyTest extends TestCase
         self::assertNull((new BulkStrategy())->apply($rule, $ctx));
     }
 
+    public function testPerCategoryScopeReturnsNullInPhase1(): void
+    {
+        $rule = $this->rule([
+            'count_scope' => 'per_category',
+            'ranges' => [['from' => 1, 'to' => null, 'method' => 'percentage', 'value' => 10]],
+        ]);
+        $ctx = new CartContext([new CartItem(1, 'A', 100.0, 5, [10])]);
+        self::assertNull((new BulkStrategy())->apply($rule, $ctx));
+    }
+
+    public function testUnknownScopeReturnsNull(): void
+    {
+        $rule = $this->rule([
+            'count_scope' => 'nonsense',
+            'ranges' => [['from' => 1, 'to' => null, 'method' => 'percentage', 'value' => 10]],
+        ]);
+        $ctx = new CartContext([new CartItem(1, 'A', 100.0, 5, [])]);
+        self::assertNull((new BulkStrategy())->apply($rule, $ctx));
+    }
+
     private function rule(array $config): Rule
     {
         return new Rule(['id' => 1, 'title' => 't', 'type' => 'bulk', 'config' => $config]);

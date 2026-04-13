@@ -44,8 +44,10 @@ final class BulkStrategy implements DiscountStrategyInterface
                     $affected[] = $item->getProductId();
                 }
             }
-        } else {
-            // cumulative
+        } elseif ($scope === 'per_category') {
+            // TODO Phase 2: requires category grouping via the Filter system.
+            return null;
+        } elseif ($scope === 'cumulative') {
             $totalQty = $context->getTotalQuantity();
             $range = $this->findRange($ranges, $totalQty);
             if ($range !== null) {
@@ -57,6 +59,8 @@ final class BulkStrategy implements DiscountStrategyInterface
                     }
                 }
             }
+        } else {
+            return null;
         }
 
         if ($totalDiscount <= 0) {
