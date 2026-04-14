@@ -56,72 +56,62 @@
     font-weight: 600;
     vertical-align: middle;
 }
-/* Applied-rule notification under each cart item.
-   The wrapper element varies between classic cart (dl > dt + dd) and
-   block cart (li / span). We hide the WC-supplied key label and style
-   our own .pd-applied-note element as a blue notification box. */
-
-/* Classic cart: hide the "pdapplied:" dt label */
-dl.variation dt.variation-pdapplied {
-    display: none !important;
-}
-dl.variation dd.variation-pdapplied {
-    margin: 6px 0 0 !important;
-    padding: 0 !important;
-}
-dl.variation dd.variation-pdapplied > p {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* Block cart: hide the {key}: text inside the meta data list item */
-.wc-block-components-product-details__pdapplied .wc-block-components-product-details__name {
-    display: none !important;
-}
-
-/* The notification box itself (works in both contexts) */
-.pd-applied-note {
-    display: block;
-    margin: 4px 0;
-    padding: 8px 12px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    border-left: 3px solid #2563eb;
-    border-radius: 4px;
-    color: #1e3a8a;
-    font-size: 13px;
+/* Applied-discounts summary panel — injected under cart / checkout totals */
+.pd-applied-summary {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    color: #7c2d12;
+    font-size: 14px;
     line-height: 1.5;
-    font-weight: normal;
 }
-.pd-applied-note__label {
+.pd-applied-summary__title {
+    margin: 0 0 12px;
+    padding: 0;
+    font-size: 15px;
     font-weight: 600;
-    margin-right: 2px;
+    color: #9a3412;
+    border: none;
 }
-
-/* Applied-rules summary panel above cart total (classic cart) */
-.pd-applied-rules-row th,
-.pd-applied-rules-row td {
-    background: #eff6ff;
-    border-top: 1px solid #bfdbfe !important;
-    padding: 12px !important;
-}
-.pd-applied-rules-list {
+.pd-applied-summary__list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
-.pd-applied-rules-list li {
-    margin: 6px 0;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #1e3a8a;
+.pd-applied-summary__item {
+    margin: 0;
+    padding: 10px 0;
+    border-bottom: 1px dashed #fed7aa;
 }
-.pd-applied-rule-label { font-weight: 500; }
-.pd-applied-rule-amount {
-    margin-left: 6px;
-    color: #2563eb;
+.pd-applied-summary__item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.pd-applied-summary__item:first-child {
+    padding-top: 0;
+}
+.pd-applied-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+.pd-applied-summary__label {
+    font-weight: 600;
+    color: #9a3412;
+}
+.pd-applied-summary__amount {
+    color: #c2410c;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.pd-applied-summary__scope {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #b45309;
 }
 
 .pd-price-table {
