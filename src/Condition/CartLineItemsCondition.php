@@ -5,11 +5,11 @@ namespace PowerDiscount\Condition;
 
 use PowerDiscount\Domain\CartContext;
 
-final class CartSubtotalCondition implements ConditionInterface
+final class CartLineItemsCondition implements ConditionInterface
 {
     public function type(): string
     {
-        return 'cart_subtotal';
+        return 'cart_line_items';
     }
 
     public function evaluate(array $config, CartContext $context): bool
@@ -18,7 +18,7 @@ final class CartSubtotalCondition implements ConditionInterface
             return false;
         }
         return Comparator::compare(
-            $context->getSubtotal(),
+            count($context->getItems()),
             (string) $config['operator'],
             (float) $config['value']
         );
