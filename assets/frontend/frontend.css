@@ -56,11 +56,53 @@
     font-weight: 600;
     vertical-align: middle;
 }
-/* Applied rules summary panel above cart total */
+/* Applied-rule notification under each cart item.
+   The wrapper element varies between classic cart (dl > dt + dd) and
+   block cart (li / span). We hide the WC-supplied key label and style
+   our own .pd-applied-note element as a blue notification box. */
+
+/* Classic cart: hide the "pdapplied:" dt label */
+dl.variation dt.variation-pdapplied {
+    display: none !important;
+}
+dl.variation dd.variation-pdapplied {
+    margin: 6px 0 0 !important;
+    padding: 0 !important;
+}
+dl.variation dd.variation-pdapplied > p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Block cart: hide the {key}: text inside the meta data list item */
+.wc-block-components-product-details__pdapplied .wc-block-components-product-details__name {
+    display: none !important;
+}
+
+/* The notification box itself (works in both contexts) */
+.pd-applied-note {
+    display: block;
+    margin: 4px 0;
+    padding: 8px 12px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 3px solid #2563eb;
+    border-radius: 4px;
+    color: #1e3a8a;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: normal;
+}
+.pd-applied-note__label {
+    font-weight: 600;
+    margin-right: 2px;
+}
+
+/* Applied-rules summary panel above cart total (classic cart) */
 .pd-applied-rules-row th,
 .pd-applied-rules-row td {
-    background: #f0fdf4;
-    border-top: 1px solid #bbf7d0 !important;
+    background: #eff6ff;
+    border-top: 1px solid #bfdbfe !important;
     padding: 12px !important;
 }
 .pd-applied-rules-list {
@@ -72,13 +114,12 @@
     margin: 6px 0;
     font-size: 13px;
     line-height: 1.5;
-    color: #166534;
+    color: #1e3a8a;
 }
-.pd-applied-rule-icon { margin-right: 4px; }
 .pd-applied-rule-label { font-weight: 500; }
 .pd-applied-rule-amount {
     margin-left: 6px;
-    color: #15803d;
+    color: #2563eb;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
 }

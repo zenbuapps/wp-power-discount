@@ -8,11 +8,17 @@ use PowerDiscount\Domain\DiscountResult;
 /**
  * Surface applied power-discount rules in the cart and checkout UI:
  *
- * 1. Per-item annotation under each affected line item (works in both
- *    classic shortcode cart and the modern block cart, because both call
- *    `woocommerce_get_item_data`).
- * 2. A summary panel above the cart total (classic cart only — block cart
- *    needs a Store API extension which is post-MVP).
+ * 1. `woocommerce_cart_item_name` filter (classic cart): append a blue
+ *    notification-style callout box per applied product-scope rule directly
+ *    under the product name. This is the primary, user-facing presentation.
+ *
+ * 2. `woocommerce_get_item_data` filter (block cart fallback): block cart
+ *    doesn't use `cart_item_name` filter, so we emit simple text entries via
+ *    `get_item_data` as a plain-text fallback. We detect block-cart (Store API)
+ *    context so classic cart doesn't get duplicate output.
+ *
+ * 3. A summary panel above the cart total via the classic-cart-only hooks
+ *    `woocommerce_cart_totals_before_order_total` / `woocommerce_review_order_before_order_total`.
  */
 final class AppliedRulesDisplay
 {
@@ -31,6 +37,14 @@ final class AppliedRulesDisplay
     }
 
     /**
+     * Add applied-rule entries to a cart item's meta via woocommerce_get_item_data.
+     *
+     * Both classic and block cart honour the `display` field, which we use
+     * to emit a styled HTML "notification" (blue bordered box). The `key` is a
+     * stable ASCII slug ("pdapplied") so CSS can target the resulting
+     * `dt.variation-pdapplied` / `dd.variation-pdapplied` markup and hide the
+     * leading key label.
+     *
      * @param array<int, array<string, string>> $itemData
      * @param array<string, mixed> $cartItem
      * @return array<int, array<string, string>>
@@ -40,53 +54,22 @@ final class AppliedRulesDisplay
         if (!is_array($itemData)) {
             $itemData = [];
         }
-        if (!function_exists('WC') || WC()->cart === null) {
+        $labels = $this->appliedLabelsForItem($cartItem);
+        if ($labels === []) {
             return $itemData;
         }
 
-        $results = $this->cartHooks->getLastResultsForCart(WC()->cart);
-        if ($results === null || $results === []) {
-            return $itemData;
-        }
-
-        $product = $cartItem['data'] ?? null;
-        if (!$product || !method_exists($product, 'get_id')) {
-            return $itemData;
-        }
-
-        $productId = (int) $product->get_id();
-        $parentId = method_exists($product, 'get_parent_id') ? (int) $product->get_parent_id() : 0;
-
-        $applied = [];
-        foreach ($results as $result) {
-            if (!$result instanceof DiscountResult || !$result->hasDiscount()) {
-                continue;
-            }
-            if ($result->getScope() !== DiscountResult::SCOPE_PRODUCT) {
-                continue;
-            }
-            $affected = $result->getAffectedProductIds();
-            $hits = in_array($productId, $affected, true)
-                || ($parentId > 0 && in_array($parentId, $affected, true));
-            if (!$hits) {
-                continue;
-            }
-            $label = $result->getLabel();
-            if ($label === null || $label === '') {
-                $label = __('Discount', 'power-discount');
-            }
-            // De-duplicate: same label only once per line item.
-            $applied[$label] = true;
-        }
-
-        foreach (array_keys($applied) as $label) {
+        foreach ($labels as $label) {
             $itemData[] = [
-                'key'     => '🎯 ' . __('Applied', 'power-discount'),
-                'value'   => (string) $label,
-                'display' => '',
+                'key'     => 'pdapplied',
+                'value'   => $label,
+                'display' => sprintf(
+                    '<span class="pd-applied-note"><span class="pd-applied-note__label">%s</span> %s</span>',
+                    esc_html__('Applied:', 'power-discount'),
+                    esc_html($label)
+                ),
             ];
         }
-
         return $itemData;
     }
 
@@ -100,7 +83,6 @@ final class AppliedRulesDisplay
             return;
         }
 
-        // Aggregate all applied (positive-amount) results.
         $entries = [];
         foreach ($results as $result) {
             if (!$result instanceof DiscountResult || !$result->hasDiscount()) {
@@ -133,9 +115,7 @@ final class AppliedRulesDisplay
         echo '<td>';
         echo '<ul class="pd-applied-rules-list">';
         foreach ($entries as $entry) {
-            $icon = $entry['scope'] === DiscountResult::SCOPE_SHIPPING ? '🚚' : '🎯';
             echo '<li>';
-            echo '<span class="pd-applied-rule-icon">' . $icon . '</span> ';
             echo '<span class="pd-applied-rule-label">' . esc_html($entry['label']) . '</span>';
             if ($entry['amount'] > 0 && $entry['scope'] !== DiscountResult::SCOPE_SHIPPING) {
                 echo ' <span class="pd-applied-rule-amount">−' . esc_html($priceFn($entry['amount'])) . '</span>';
@@ -146,4 +126,55 @@ final class AppliedRulesDisplay
         echo '</td>';
         echo '</tr>';
     }
+
+    /**
+     * Return the distinct rule labels that apply to a cart item, based on
+     * the cached Calculator results stored by CartHooks.
+     *
+     * @param array<string, mixed> $cartItem
+     * @return string[]
+     */
+    private function appliedLabelsForItem(array $cartItem): array
+    {
+        if (!function_exists('WC') || WC()->cart === null) {
+            return [];
+        }
+
+        $results = $this->cartHooks->getLastResultsForCart(WC()->cart);
+        if ($results === null || $results === []) {
+            return [];
+        }
+
+        $product = $cartItem['data'] ?? null;
+        if (!$product || !method_exists($product, 'get_id')) {
+            return [];
+        }
+
+        $productId = (int) $product->get_id();
+        $parentId = method_exists($product, 'get_parent_id') ? (int) $product->get_parent_id() : 0;
+
+        $applied = [];
+        foreach ($results as $result) {
+            if (!$result instanceof DiscountResult || !$result->hasDiscount()) {
+                continue;
+            }
+            if ($result->getScope() !== DiscountResult::SCOPE_PRODUCT) {
+                continue;
+            }
+            $affected = $result->getAffectedProductIds();
+            $hits = in_array($productId, $affected, true)
+                || ($parentId > 0 && in_array($parentId, $affected, true));
+            if (!$hits) {
+                continue;
+            }
+            $label = $result->getLabel();
+            if ($label === null || $label === '') {
+                $label = __('Discount', 'power-discount');
+            }
+            $applied[(string) $label] = true;
+        }
+
+        return array_keys($applied);
+    }
+
 }
