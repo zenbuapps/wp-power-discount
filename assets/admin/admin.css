@@ -87,6 +87,12 @@
     transform: translateY(-1px);
 }
 
+/* Schedule mode sub-blocks — add breathing room below the radio row */
+.pd-rule-editor .pd-schedule-once,
+.pd-rule-editor .pd-schedule-monthly {
+    margin-top: 12px;
+}
+
 /* Description under the discount type select */
 .pd-rule-editor .pd-type-description {
     margin: 8px 0 0;
