@@ -10,10 +10,10 @@ final class Comparator
         switch ($operator) {
             case '>=': return $left >= $right;
             case '>':  return $left >  $right;
-            case '=':  return abs($left - $right) < 0.00001;
+            case '=':  return abs($left - $right) < 0.005;
             case '<=': return $left <= $right;
             case '<':  return $left <  $right;
-            case '!=': return abs($left - $right) >= 0.00001;
+            case '!=': return abs($left - $right) >= 0.005;
         }
         return false;
     }
