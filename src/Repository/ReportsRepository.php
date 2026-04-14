@@ -44,7 +44,7 @@ final class ReportsRepository
 
             // Track the most recent (highest id) row's title as the canonical title.
             $rowId = (int) ($row['id'] ?? 0);
-            if ($rowId >= $byRuleId[$ruleId]['_max_id']) {
+            if ($rowId > 0 && $rowId > $byRuleId[$ruleId]['_max_id']) {
                 $byRuleId[$ruleId]['_max_id'] = $rowId;
                 $byRuleId[$ruleId]['rule_title'] = (string) ($row['rule_title'] ?? '');
                 $byRuleId[$ruleId]['rule_type'] = (string) ($row['rule_type'] ?? '');
