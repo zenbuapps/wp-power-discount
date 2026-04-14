@@ -29,7 +29,7 @@ return [
     'Title'                                             => '名稱',
     'Type'                                              => '類型',
     'Status'                                            => '狀態',
-    'Priority'                                          => '順序',
+    'Priority'                                          => '優先順序',
     'Schedule'                                          => '排程',
     'Used'                                              => '已使用',
     'Always'                                            => '不限',
@@ -38,7 +38,8 @@ return [
     'Toggle'                                            => '切換',
     'Click to enable'                                   => '點擊啟用',
     'Click to disable'                                  => '點擊停用',
-    'Drag rows to reorder. Rules run from top to bottom.' => '拖拉列可調整順序，規則會由上而下依序執行。',
+    'Priority decides the order rules are evaluated. Rules run from top to bottom — the one on top is checked first. Drag rows to reorder.'
+        => '優先順序決定規則的評估順序。排在越上面的規則會越先被檢查並套用，你可以直接拖拉列來調整順序。',
     'Drag to reorder'                                   => '拖拉以調整順序',
     'Every month %d–%d'                                 => '每月 %d–%d 號',
     'Edit'                                              => '編輯',

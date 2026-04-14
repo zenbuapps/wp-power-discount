@@ -314,6 +314,7 @@
 
 /* Help tip */
 .pd-help-tip {
+    position: relative;
     display: inline-block;
     width: 16px;
     height: 16px;
@@ -328,7 +329,51 @@
     margin-left: 4px;
     vertical-align: middle;
 }
-.pd-help-tip:hover { background: #94a3b8; }
+.pd-help-tip:hover { background: #2271b1; }
+
+/* Custom tooltip bubble — reads data-tip to avoid doubling the native title tooltip */
+.pd-help-tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 140%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1d2327;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: max-content;
+    max-width: 320px;
+    white-space: normal;
+    text-align: left;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    z-index: 9999;
+}
+.pd-help-tip::before {
+    content: "";
+    position: absolute;
+    top: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: #1d2327;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    z-index: 9999;
+}
+.pd-help-tip:hover::after,
+.pd-help-tip:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
 
 /* Schedule + muted */
 .pd-muted { color: #94a3b8; }

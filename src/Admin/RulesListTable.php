@@ -47,9 +47,10 @@ final class RulesListTable extends \WP_List_Table
     public function get_columns(): array
     {
         return [
-            'order'      => '<span class="pd-help-tip" title="' .
-                esc_attr__('Drag rows to reorder. Rules run from top to bottom.', 'power-discount') .
-                '">#</span>',
+            'order'      => esc_html__('Priority', 'power-discount') .
+                ' <span class="pd-help-tip" data-tip="' .
+                esc_attr__('Priority decides the order rules are evaluated. Rules run from top to bottom — the one on top is checked first. Drag rows to reorder.', 'power-discount') .
+                '">?</span>',
             'status'     => __('Status', 'power-discount'),
             'title'      => __('Title', 'power-discount'),
             'type'       => __('Type', 'power-discount'),
