@@ -68,6 +68,69 @@ final class FreeShippingStrategyTest extends TestCase
         self::assertNull((new FreeShippingStrategy())->apply($rule, $ctx));
     }
 
+    public function testFlatOffShippingEmitsMeta(): void
+    {
+        $rule = $this->rule(['method' => 'flat_off_shipping', 'value' => 50]);
+        $ctx = new CartContext([new CartItem(1, 'A', 500.0, 1, [])]);
+
+        $result = (new FreeShippingStrategy())->apply($rule, $ctx);
+        self::assertNotNull($result);
+        $meta = $result->getMeta();
+        self::assertSame('flat_off_shipping', $meta['method'] ?? null);
+        self::assertSame(50.0, $meta['value'] ?? null);
+    }
+
+    public function testFlatOffShippingZeroOrNegativeReturnsNull(): void
+    {
+        $ctx = new CartContext([new CartItem(1, 'A', 100.0, 1, [])]);
+        self::assertNull((new FreeShippingStrategy())->apply(
+            $this->rule(['method' => 'flat_off_shipping', 'value' => 0]),
+            $ctx
+        ));
+        self::assertNull((new FreeShippingStrategy())->apply(
+            $this->rule(['method' => 'flat_off_shipping', 'value' => -10]),
+            $ctx
+        ));
+    }
+
+    public function testShippingMethodIdsPassedThroughToMeta(): void
+    {
+        $rule = $this->rule([
+            'method' => 'remove_shipping',
+            'shipping_method_ids' => ['flat_rate:1', 'ecpay_seven_eleven:3'],
+        ]);
+        $ctx = new CartContext([new CartItem(1, 'A', 500.0, 1, [])]);
+
+        $result = (new FreeShippingStrategy())->apply($rule, $ctx);
+        self::assertNotNull($result);
+        $meta = $result->getMeta();
+        self::assertSame(['flat_rate:1', 'ecpay_seven_eleven:3'], $meta['shipping_method_ids'] ?? null);
+    }
+
+    public function testEmptyShippingMethodIdsArrayInMeta(): void
+    {
+        $rule = $this->rule(['method' => 'remove_shipping']);
+        $ctx = new CartContext([new CartItem(1, 'A', 500.0, 1, [])]);
+
+        $result = (new FreeShippingStrategy())->apply($rule, $ctx);
+        self::assertNotNull($result);
+        $meta = $result->getMeta();
+        self::assertSame([], $meta['shipping_method_ids'] ?? null);
+    }
+
+    public function testShippingMethodIdsFiltersOutEmpty(): void
+    {
+        $rule = $this->rule([
+            'method' => 'remove_shipping',
+            'shipping_method_ids' => ['flat_rate:1', '', 'ecpay:2'],
+        ]);
+        $ctx = new CartContext([new CartItem(1, 'A', 500.0, 1, [])]);
+
+        $result = (new FreeShippingStrategy())->apply($rule, $ctx);
+        $meta = $result->getMeta();
+        self::assertSame(['flat_rate:1', 'ecpay:2'], $meta['shipping_method_ids'] ?? null);
+    }
+
     private function rule(array $config): Rule
     {
         return new Rule(['id' => 1, 'title' => 't', 'type' => 'free_shipping', 'config' => $config]);

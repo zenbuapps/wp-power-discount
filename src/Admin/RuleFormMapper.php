@@ -170,8 +170,12 @@ final class RuleFormMapper
                 ];
             case 'free_shipping':
                 return [
-                    'method' => (string) ($raw['method'] ?? ''),
-                    'value'  => isset($raw['value']) ? (float) $raw['value'] : 0.0,
+                    'method'              => (string) ($raw['method'] ?? ''),
+                    'value'               => isset($raw['value']) ? (float) $raw['value'] : 0.0,
+                    'shipping_method_ids' => array_values(array_filter(
+                        array_map('strval', (array) ($raw['shipping_method_ids'] ?? [])),
+                        static function (string $id): bool { return $id !== ''; }
+                    )),
                 ];
             case 'gift_with_purchase':
                 return [
@@ -246,7 +250,7 @@ final class RuleFormMapper
                 }
                 return;
             case 'free_shipping':
-                if (!in_array($config['method'] ?? '', ['remove_shipping', 'percentage_off_shipping'], true)) {
+                if (!in_array($config['method'] ?? '', ['remove_shipping', 'percentage_off_shipping', 'flat_off_shipping'], true)) {
                     throw new InvalidArgumentException('Invalid free_shipping method');
                 }
                 return;

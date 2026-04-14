@@ -79,6 +79,10 @@ final class ShippingHooks
         $meta = $result->getMeta();
         $method = (string) ($meta['method'] ?? '');
         $value = (float) ($meta['value'] ?? 0);
+        $allowedMethodIds = array_values(array_filter(
+            array_map('strval', (array) ($meta['shipping_method_ids'] ?? [])),
+            static function (string $id): bool { return $id !== ''; }
+        ));
 
         foreach ($rates as $key => $rate) {
             if (!is_object($rate)) {
@@ -87,6 +91,19 @@ final class ShippingHooks
             if (!method_exists($rate, 'get_cost') || !method_exists($rate, 'set_cost')) {
                 continue;
             }
+
+            // If the rule restricts to specific shipping methods, skip rates that don't match.
+            // $rate->id is the full instance id (e.g. "flat_rate:1"), $rate->method_id is just the slug.
+            if ($allowedMethodIds !== []) {
+                $rateInstanceId = isset($rate->id) ? (string) $rate->id : '';
+                $rateMethodId = isset($rate->method_id) ? (string) $rate->method_id : '';
+                $matches = in_array($rateInstanceId, $allowedMethodIds, true)
+                    || ($rateMethodId !== '' && in_array($rateMethodId, $allowedMethodIds, true));
+                if (!$matches) {
+                    continue;
+                }
+            }
+
             $currentCost = (float) $rate->get_cost();
 
             if ($method === 'remove_shipping') {
@@ -94,6 +111,8 @@ final class ShippingHooks
             } elseif ($method === 'percentage_off_shipping') {
                 $discount = $currentCost * ($value / 100);
                 $rate->set_cost(max(0.0, $currentCost - $discount));
+            } elseif ($method === 'flat_off_shipping') {
+                $rate->set_cost(max(0.0, $currentCost - $value));
             }
         }
     }

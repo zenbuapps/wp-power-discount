@@ -23,8 +23,12 @@ final class FreeShippingStrategy implements DiscountStrategyInterface
         $config = $rule->getConfig();
         $method = (string) ($config['method'] ?? '');
         $value = (float) ($config['value'] ?? 0);
+        $methodIds = array_values(array_filter(
+            array_map('strval', (array) ($config['shipping_method_ids'] ?? [])),
+            static function (string $id): bool { return $id !== ''; }
+        ));
 
-        if (!in_array($method, ['remove_shipping', 'percentage_off_shipping'], true)) {
+        if (!in_array($method, ['remove_shipping', 'percentage_off_shipping', 'flat_off_shipping'], true)) {
             return null;
         }
 
@@ -33,8 +37,13 @@ final class FreeShippingStrategy implements DiscountStrategyInterface
                 return null;
             }
         }
+        if ($method === 'flat_off_shipping') {
+            if ($value <= 0) {
+                return null;
+            }
+        }
 
-        // Sentinel amount: the real shipping-line subtraction lives in Phase 4 ShippingHooks.
+        // Sentinel amount: the real shipping-line subtraction lives in ShippingHooks.
         // Amount > 0 is required for DiscountResult::hasDiscount() to pass aggregation.
         $sentinel = 1.0;
 
@@ -46,8 +55,9 @@ final class FreeShippingStrategy implements DiscountStrategyInterface
             [],
             $rule->getLabel(),
             [
-                'method' => $method,
-                'value'  => $value,
+                'method'              => $method,
+                'value'               => $value,
+                'shipping_method_ids' => $methodIds,
             ]
         );
     }

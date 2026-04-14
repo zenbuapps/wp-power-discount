@@ -181,7 +181,15 @@ return [
     // === Strategy: free_shipping ===
     'Remove shipping entirely'                          => '完全免運',
     'Percentage off shipping cost'                      => '運費按百分比折扣',
+    'Flat amount off shipping'                          => '運費固定金額折扣',
     'Percentage off (1–100)'                            => '折扣百分比（1–100）',
+    'Percentage (1–100) for percentage off; NT$ amount for flat off. Ignored when removing shipping entirely.'
+        => '百分比折扣填 1–100；固定金額折扣填 NT$ 數值。完全免運則不需填寫。',
+    'Apply to which shipping methods'                   => '適用於哪些物流方式',
+    'Leave empty to apply to ALL shipping methods. Hold ⌘ / Ctrl to select multiple.'
+        => '留空則套用於所有物流方式。按住 ⌘ / Ctrl 可多選。',
+    'No shipping methods are configured in WooCommerce yet. Set up shipping zones in WooCommerce → Settings → Shipping first.'
+        => 'WooCommerce 還沒設定任何物流方式。請先到「WooCommerce → 設定 → 運送」建立運送區域。',
 
     // === Strategy: gift_with_purchase ===
     'Spend threshold'                                   => '滿額門檻',
