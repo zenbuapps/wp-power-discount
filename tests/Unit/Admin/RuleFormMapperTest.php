@@ -154,4 +154,28 @@ final class RuleFormMapperTest extends TestCase
             'config_json' => '"a string"',
         ]);
     }
+
+    public function testRejectsBadDateFormat(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/starts_at/i');
+        RuleFormMapper::fromFormData([
+            'title' => 'X',
+            'type' => 'simple',
+            'config_json' => '{}',
+            'starts_at' => 'tomorrow',
+        ]);
+    }
+
+    public function testAcceptsValidDateFormat(): void
+    {
+        $rule = RuleFormMapper::fromFormData([
+            'title' => 'X',
+            'type' => 'simple',
+            'config_json' => '{}',
+            'starts_at' => '2026-04-15 10:00:00',
+            'ends_at' => '2026-04-30 23:59:59',
+        ]);
+        self::assertSame('2026-04-15 10:00:00', $rule->getStartsAt());
+    }
 }

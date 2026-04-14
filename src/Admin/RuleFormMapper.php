@@ -39,6 +39,13 @@ final class RuleFormMapper
         $startsAt = trim((string) ($post['starts_at'] ?? ''));
         $endsAt = trim((string) ($post['ends_at'] ?? ''));
 
+        if ($startsAt !== '' && !self::isValidDateString($startsAt)) {
+            throw new InvalidArgumentException('Invalid starts_at format. Expected YYYY-MM-DD HH:MM:SS.');
+        }
+        if ($endsAt !== '' && !self::isValidDateString($endsAt)) {
+            throw new InvalidArgumentException('Invalid ends_at format. Expected YYYY-MM-DD HH:MM:SS.');
+        }
+
         return new Rule([
             'id'          => (int) ($post['id'] ?? 0),
             'title'       => $title,
@@ -91,11 +98,21 @@ final class RuleFormMapper
         if ($value === '') {
             return [];
         }
-        $decoded = json_decode($value, true);
+        try {
+            $decoded = json_decode($value, true, 16, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new InvalidArgumentException(sprintf('Invalid JSON in %s field: %s', $field, $e->getMessage()));
+        }
         if (!is_array($decoded)) {
             throw new InvalidArgumentException(sprintf('Invalid JSON in %s field.', $field));
         }
         return $decoded;
+    }
+
+    private static function isValidDateString(string $value): bool
+    {
+        $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
+        return $dt !== false && $dt->format('Y-m-d H:i:s') === $value;
     }
 
     private static function encodePretty(array $data): string
