@@ -104,7 +104,7 @@ return [
     'Per item — each line counts on its own'            => '逐項 — 每個商品自己算',
     'Quantity tiers'                                    => '數量階梯',
     'From'                                              => '從',
-    'Add tier'                                          => '+ 新增階梯',
+    'Add tier'                                          => '新增階梯',
 
     // === Strategy: cart ===
     'Method'                                            => '方式',
@@ -153,7 +153,7 @@ return [
     'Categories'                                        => '商品分類',
     'Select categories'                                 => '請選擇商品分類',
     'Min qty'                                           => '最少件數',
-    'Add group'                                         => '+ 新增分類組',
+    'Add group'                                         => '新增分類組',
     'Need at least 2 groups.'                           => '至少需要 2 個分類組。',
     'Reward'                                            => '優惠內容',
     'Percentage off bundle'                             => '整組打折（百分比）',
@@ -170,7 +170,7 @@ return [
     // === Filter builder ===
     'Which products in the cart should this rule apply to? Leave empty to apply to all products.'
         => '此規則要套用到購物車裡哪些商品？留空表示套用到全部商品。',
-    'Add filter'                                        => '+ 新增篩選條件',
+    'Add filter'                                        => '新增篩選條件',
     'All products'                                      => '全部商品',
     'Specific products'                                 => '特定商品',
     'Tags'                                              => '商品標籤',
@@ -187,7 +187,7 @@ return [
     'Logic'                                             => '組合邏輯',
     'AND (all)'                                         => 'AND（全部都要符合）',
     'OR (any)'                                          => 'OR（任一個符合即可）',
-    'Add condition'                                     => '+ 新增條件',
+    'Add condition'                                     => '新增條件',
     'Cart subtotal'                                     => '購物車小計',
     'Cart total quantity'                               => '購物車總件數',
     'Number of line items'                              => '購物車品項數',
