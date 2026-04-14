@@ -26,6 +26,8 @@ use PowerDiscount\Admin\RuleEditPage;
 use PowerDiscount\Admin\RulesListPage;
 use PowerDiscount\Frontend\FreeShippingBar;
 use PowerDiscount\Frontend\FreeShippingProgressHelper;
+use PowerDiscount\Frontend\GiftProgressBar;
+use PowerDiscount\Frontend\GiftProgressHelper;
 use PowerDiscount\Frontend\PriceTableShortcode;
 use PowerDiscount\Repository\ReportsRepository;
 use PowerDiscount\Engine\Aggregator;
@@ -42,6 +44,7 @@ use PowerDiscount\Filter\TagsFilter;
 use PowerDiscount\I18n\Loader as I18nLoader;
 use PowerDiscount\Integration\CartContextBuilder;
 use PowerDiscount\Integration\CartHooks;
+use PowerDiscount\Integration\GiftAutoInjector;
 use PowerDiscount\Integration\OrderDiscountLogger;
 use PowerDiscount\Integration\ShippingHooks;
 use PowerDiscount\Persistence\WpdbAdapter;
@@ -103,14 +106,20 @@ final class Plugin
         $aggregator = new Aggregator();
         $builder = new CartContextBuilder();
 
+        // GiftAutoInjector at priority 5 so the gift item is in the cart
+        // before CartHooks (priority 20) runs Calculator against it.
+        (new GiftAutoInjector($rulesRepo))->register();
+
         $cartHooks = new CartHooks($rulesRepo, $calculator, $aggregator, $builder);
         $cartHooks->register();
         (new OrderDiscountLogger($rulesRepo, $orderDiscountsRepo, $cartHooks))->register();
         (new ShippingHooks($rulesRepo, $calculator, $aggregator, $builder, $cartHooks))->register();
 
         // Frontend components (cart/checkout pages)
-        $progressHelper = new FreeShippingProgressHelper();
-        (new FreeShippingBar($rulesRepo, $builder, $progressHelper))->register();
+        $shippingProgressHelper = new FreeShippingProgressHelper();
+        $giftProgressHelper = new GiftProgressHelper();
+        (new FreeShippingBar($rulesRepo, $builder, $shippingProgressHelper))->register();
+        (new GiftProgressBar($rulesRepo, $builder, $giftProgressHelper))->register();
         (new PriceTableShortcode($rulesRepo))->register();
 
         if (is_admin()) {

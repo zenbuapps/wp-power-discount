@@ -238,6 +238,13 @@ return [
     'Add %s more to qualify for free shipping'          => '再買 %s 即可享免運',
     'Free shipping promotions available — see checkout for details.'
         => '有免運優惠，詳情請見結帳頁。',
+    'Gift unlocked: %s'                                 => '已獲得贈品：%s',
+    'Gift unlocked!'                                    => '已獲得贈品！',
+    'Add %1$s more to unlock free gift: %2$s'           => '再買 %1$s 即可獲得贈品：%2$s',
+    'Add %s more to unlock a free gift'                 => '再買 %s 即可獲得贈品',
+    'Gift promotions available — see checkout for details.'
+        => '有滿額贈優惠，詳情請見結帳頁。',
+    'Free gift'                                         => '贈品',
     'Quantity'                                          => '數量',
     '%d+'                                               => '%d 件以上',
     'Discount'                                          => '折扣',
