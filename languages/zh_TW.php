@@ -72,8 +72,8 @@ return [
     'Leave blank for no schedule limit.'                => '留空表示不限期間。',
     'Usage limit'                                       => '使用次數上限',
     'Used: %d'                                          => '已使用：%d 次',
-    'Cart label'                                        => '購物車顯示文字',
-    'Shown to customers in the cart when this rule applies.' => '此規則套用時會在購物車顯示給顧客的文字。',
+    'Cart label'                                        => '購物車 / 結帳顯示文字',
+    'Shown to customers in the cart when this rule applies.' => '此規則套用時會在購物車與結帳頁顯示給顧客的文字。',
 
     // === Strategy type labels (already Chinese; passthrough) ===
     'Simple — 商品折扣'                                  => 'Simple — 商品折扣',
