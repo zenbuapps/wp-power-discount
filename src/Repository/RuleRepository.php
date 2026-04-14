@@ -31,6 +31,7 @@ final class RuleRepository
     public function update(Rule $rule): int
     {
         $row = $this->toRow($rule);
+        unset($row['used_count']); // counter is mutated only via incrementUsedCount
         $row['updated_at'] = gmdate('Y-m-d H:i:s');
         return $this->db->update($this->table(), $row, ['id' => $rule->getId()]);
     }

@@ -49,7 +49,7 @@ final class RuleFormMapper
             'starts_at'   => $startsAt === '' ? null : $startsAt,
             'ends_at'     => $endsAt === '' ? null : $endsAt,
             'usage_limit' => $usageLimit,
-            'used_count'  => (int) ($post['used_count'] ?? 0),
+            'used_count'  => 0, // never read from POST; preserved separately by repository on update
             'config'      => $config,
             'filters'     => $filters,
             'conditions'  => $conditions,

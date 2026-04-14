@@ -95,6 +95,31 @@ final class RuleRepositoryTest extends TestCase
         self::assertSame(6, $found->getUsedCount());
     }
 
+    public function testUpdatePreservesUsedCount(): void
+    {
+        $original = new Rule([
+            'title' => 'Original',
+            'type' => 'simple',
+            'usage_limit' => 100,
+            'used_count' => 5,
+        ]);
+        $id = $this->repo->insert($original);
+
+        // Simulate a form save that "forgets" used_count (sends 0)
+        $edited = new Rule([
+            'id' => $id,
+            'title' => 'Edited',
+            'type' => 'simple',
+            'usage_limit' => 100,
+            'used_count' => 0, // attacker-supplied
+        ]);
+        $this->repo->update($edited);
+
+        $found = $this->repo->findById($id);
+        self::assertSame('Edited', $found->getTitle());
+        self::assertSame(5, $found->getUsedCount(), 'used_count must be preserved across update');
+    }
+
     public function testInsertPersistsDates(): void
     {
         $rule = new Rule([
