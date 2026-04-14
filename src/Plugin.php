@@ -169,20 +169,30 @@ final class Plugin
         $registry->register(new FirstOrderCondition(
             $currentUserId,
             static function (int $uid): int {
-                if ($uid <= 0 || !function_exists('wc_get_customer_order_count')) {
+                if ($uid <= 0 || !class_exists('WC_Customer')) {
                     return 0;
                 }
-                return (int) wc_get_customer_order_count($uid);
+                try {
+                    $customer = new \WC_Customer($uid);
+                    return (int) $customer->get_order_count();
+                } catch (\Exception $e) {
+                    return 0;
+                }
             }
         ));
 
         $registry->register(new TotalSpentCondition(
             $currentUserId,
             static function (int $uid): float {
-                if ($uid <= 0 || !function_exists('wc_get_customer_total_spent')) {
+                if ($uid <= 0 || !class_exists('WC_Customer')) {
                     return 0.0;
                 }
-                return (float) wc_get_customer_total_spent($uid);
+                try {
+                    $customer = new \WC_Customer($uid);
+                    return (float) $customer->get_total_spent();
+                } catch (\Exception $e) {
+                    return 0.0;
+                }
             }
         ));
 
