@@ -264,29 +264,6 @@ cd dev
 docker compose up -d
 ```
 
-- WordPress 跑在 http://localhost:3303
-- 預設管理員帳號 `admin` / `admin`
-- 內建範例商品與多條示範折扣規則
-
-### 執行測試
-
-```bash
-composer install
-vendor/bin/phpunit
-```
-
-目前 286 個單元測試、534 個斷言全綠。
-
-### 擴充新策略
-
-自行擴充一個新的折扣策略只需要三步：
-
-1. 建立類別實作 `StrategyInterface`
-2. 在 `Plugin::buildStrategyRegistry()` 註冊
-3. 在 `src/Admin/views/partials/` 新增 `strategy-<type>.php` 表單模板
-
-Condition 與 Filter 也是相同模式，可以透過同樣的 Registry 機制注入。
-
 ---
 
 ## 授權
