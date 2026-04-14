@@ -19,6 +19,7 @@ final class AjaxController
     public function register(): void
     {
         add_action('wp_ajax_pd_toggle_rule_status', [$this, 'toggleStatus']);
+        add_action('wp_ajax_pd_search_terms', [$this, 'searchTerms']);
     }
 
     public function toggleStatus(): void
@@ -56,5 +57,32 @@ final class AjaxController
         $this->rules->update($updated);
 
         wp_send_json_success(['status' => $newStatus]);
+    }
+
+    public function searchTerms(): void
+    {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(['message' => 'Permission denied'], 403);
+        }
+        check_ajax_referer('power_discount_admin', 'nonce');
+
+        $taxonomy = isset($_GET['taxonomy']) ? sanitize_key((string) $_GET['taxonomy']) : '';
+        $q = isset($_GET['q']) ? sanitize_text_field((string) $_GET['q']) : '';
+        if (!in_array($taxonomy, ['product_cat', 'product_tag'], true)) {
+            wp_send_json_success([]);
+        }
+        $terms = get_terms([
+            'taxonomy'   => $taxonomy,
+            'hide_empty' => false,
+            'number'     => 20,
+            'search'     => $q,
+        ]);
+        $results = [];
+        if (is_array($terms)) {
+            foreach ($terms as $term) {
+                $results[] = ['id' => $term->term_id, 'text' => $term->name];
+            }
+        }
+        wp_send_json_success($results);
     }
 }

@@ -68,10 +68,22 @@ final class AdminMenu
         if (strpos($hookSuffix, 'power-discount') === false) {
             return;
         }
+
+        // WC-enhanced-select for category/product pickers on the edit page
+        wp_enqueue_script('wc-enhanced-select');
+        wp_enqueue_style('woocommerce_admin_styles');
+        wp_enqueue_style('select2');
+
+        wp_enqueue_style(
+            'power-discount-admin',
+            POWER_DISCOUNT_URL . 'assets/admin/admin.css',
+            [],
+            POWER_DISCOUNT_VERSION
+        );
         wp_enqueue_script(
             'power-discount-admin',
             POWER_DISCOUNT_URL . 'assets/admin/admin.js',
-            ['jquery'],
+            ['jquery', 'wc-enhanced-select'],
             POWER_DISCOUNT_VERSION,
             true
         );

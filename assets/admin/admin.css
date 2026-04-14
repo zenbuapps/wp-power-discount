@@ -1,0 +1,9 @@
+.pd-rule-editor .pd-section { background:#fff; border:1px solid #c3c4c7; padding:16px 20px; margin:16px 0; border-radius:4px; }
+.pd-rule-editor .pd-section-title { margin-top:0; padding-bottom:8px; border-bottom:1px solid #eee; }
+.pd-rule-editor .pd-required { color:#dc3232; }
+.pd-rule-editor .pd-repeater-row { display:flex; align-items:center; gap:8px; margin:6px 0; flex-wrap:wrap; }
+.pd-rule-editor .pd-repeater-row > * { margin-right:4px; }
+.pd-rule-editor .pd-group-row { background:#f9f9f9; padding:10px; border:1px solid #e5e5e5; border-radius:4px; display:block; }
+.pd-rule-editor .pd-group-row label { display:inline-block; margin-right:12px; }
+.pd-rule-editor .pd-cond-fields { display:inline-flex; align-items:center; gap:4px; }
+.pd-rule-editor .form-table th { width:180px; }
