@@ -16,6 +16,9 @@ final class RulesListPage
 
     public function render(): void
     {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_die(esc_html__('Permission denied.', 'power-discount'));
+        }
         $table = new RulesListTable($this->rules);
         $table->prepare_items();
 

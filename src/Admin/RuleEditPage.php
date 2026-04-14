@@ -18,6 +18,9 @@ final class RuleEditPage
 
     public function render(): void
     {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_die(esc_html__('Permission denied.', 'power-discount'));
+        }
         $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         $rule = $id > 0 ? $this->rules->findById($id) : null;
 
