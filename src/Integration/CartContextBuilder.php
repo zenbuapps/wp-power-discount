@@ -41,11 +41,12 @@ final class CartContextBuilder
             if (method_exists($categorySource, 'get_tag_ids')) {
                 $tagIds = array_map('intval', (array) $categorySource->get_tag_ids());
             }
-            if (method_exists($categorySource, 'get_attributes')) {
-                $attrsRaw = $categorySource->get_attributes();
+            // Attributes: read from the actual product (variation), NOT the parent.
+            // Variations store the selected single value; parents store all configured options.
+            if (method_exists($product, 'get_attributes')) {
+                $attrsRaw = $product->get_attributes();
                 if (is_array($attrsRaw)) {
                     foreach ($attrsRaw as $attrKey => $attrValue) {
-                        // WC attribute objects expose get_options(); variations store plain strings.
                         if (is_object($attrValue) && method_exists($attrValue, 'get_options')) {
                             $attributes[(string) $attrKey] = array_map('strval', (array) $attrValue->get_options());
                         } elseif (is_string($attrValue)) {
