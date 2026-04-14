@@ -402,10 +402,10 @@
     gap: 8px;
 }
 .pd-shipping-chip {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
+    padding: 8px 16px;
     background: #fff;
     border: 1px solid #cbd5e1;
     border-radius: 999px;
@@ -420,7 +420,10 @@
     color: #2271b1;
 }
 .pd-shipping-chip input[type="checkbox"] {
-    margin: 0;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
     pointer-events: none;
 }
 .pd-shipping-chip.is-selected {
