@@ -34,10 +34,11 @@ $partialsDir = POWER_DISCOUNT_DIR . 'src/Admin/views/partials/';
                     <th><label for="pd-type"><?php esc_html_e('Discount type', 'power-discount'); ?></label></th>
                     <td>
                         <select id="pd-type" name="type">
-                            <?php foreach ($strategyTypes as $value => $label): ?>
-                                <option value="<?php echo esc_attr($value); ?>"<?php selected($currentType, $value); ?>><?php echo esc_html($label); ?></option>
+                            <?php foreach ($strategyTypes as $value => $info): ?>
+                                <option value="<?php echo esc_attr($value); ?>" data-description="<?php echo esc_attr($info['description']); ?>"<?php selected($currentType, $value); ?>><?php echo esc_html($info['label']); ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <p id="pd-type-description" class="description pd-type-description"><?php echo esc_html($strategyTypes[$currentType]['description'] ?? ''); ?></p>
                     </td>
                 </tr>
                 <tr>

@@ -27,13 +27,24 @@
         });
     });
 
-    // --- Strategy type swap (show matching section, hide others) ---
+    // --- Strategy type swap (show matching section, hide others) + description swap ---
+    function updateStrategyDescription() {
+        var $sel = $('#pd-type');
+        if (!$sel.length) {
+            return;
+        }
+        var $opt = $sel.find('option:selected');
+        var desc = $opt.attr('data-description') || '';
+        $('#pd-type-description').text(desc);
+    }
     $(document).on('change', '#pd-type', function () {
         var selected = $(this).val();
         $('.pd-strategy-section').each(function () {
             $(this).toggle($(this).data('type') === selected);
         });
+        updateStrategyDescription();
     });
+    $(updateStrategyDescription);
 
     // --- Condition type field toggler ---
     $(document).on('change', '.pd-condition-type', function () {
@@ -184,10 +195,19 @@
         var idx = nextIndex($container);
         var html = ''
             + '<div class="pd-repeater-row pd-group-row">'
-            + '<label>Group name <input type="text" name="config_by_type[cross_category][groups][' + idx + '][name]" class="regular-text"></label><br>'
-            + '<label>Categories <select name="config_by_type[cross_category][groups][' + idx + '][category_ids][]" class="pd-category-select" multiple style="min-width:300px;" data-placeholder="Select categories"></select></label>'
-            + '<label>Min qty <input type="number" name="config_by_type[cross_category][groups][' + idx + '][min_qty]" value="1" min="1" class="small-text"></label>'
-            + '<button type="button" class="button button-small pd-repeater-remove">×</button>'
+            + '<button type="button" class="button button-small pd-repeater-remove pd-group-remove" title="Remove group">×</button>'
+            + '<div class="pd-group-field">'
+            + '<label>Group name</label>'
+            + '<input type="text" name="config_by_type[cross_category][groups][' + idx + '][name]" class="regular-text" placeholder="e.g. Tops">'
+            + '</div>'
+            + '<div class="pd-group-field">'
+            + '<label>Categories</label>'
+            + '<select name="config_by_type[cross_category][groups][' + idx + '][category_ids][]" class="pd-category-select" multiple style="min-width:300px;" data-placeholder="Select categories"></select>'
+            + '</div>'
+            + '<div class="pd-group-field">'
+            + '<label>Min qty</label>'
+            + '<input type="number" name="config_by_type[cross_category][groups][' + idx + '][min_qty]" value="1" min="1" class="small-text">'
+            + '</div>'
             + '</div>';
         $container.append(html);
         initEnhancedSelects($container);

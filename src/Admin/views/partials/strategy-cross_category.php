@@ -28,21 +28,23 @@ foreach ($groups as $i => $g) {
                     $catIds = (array) ($g['category_ids'] ?? []);
                 ?>
                     <div class="pd-repeater-row pd-group-row">
-                        <label><?php esc_html_e('Group name', 'power-discount'); ?>
-                            <input type="text" name="config_by_type[cross_category][groups][<?php echo (int) $i; ?>][name]" value="<?php echo esc_attr((string) ($g['name'] ?? '')); ?>" class="regular-text">
-                        </label>
-                        <br>
-                        <label><?php esc_html_e('Categories', 'power-discount'); ?>
+                        <button type="button" class="button button-small pd-repeater-remove pd-group-remove" title="<?php esc_attr_e('Remove group', 'power-discount'); ?>">×</button>
+                        <div class="pd-group-field">
+                            <label><?php esc_html_e('Group name', 'power-discount'); ?></label>
+                            <input type="text" name="config_by_type[cross_category][groups][<?php echo (int) $i; ?>][name]" value="<?php echo esc_attr((string) ($g['name'] ?? '')); ?>" class="regular-text" placeholder="<?php esc_attr_e('e.g. Tops', 'power-discount'); ?>">
+                        </div>
+                        <div class="pd-group-field">
+                            <label><?php esc_html_e('Categories', 'power-discount'); ?></label>
                             <select name="config_by_type[cross_category][groups][<?php echo (int) $i; ?>][category_ids][]" multiple class="pd-category-select" data-placeholder="<?php esc_attr_e('Select categories', 'power-discount'); ?>" style="min-width:300px;">
                                 <?php foreach ($catIds as $cid): $cid = (int) $cid; $term = get_term($cid, 'product_cat'); if ($term && !is_wp_error($term)): ?>
                                     <option value="<?php echo $cid; ?>" selected><?php echo esc_html($term->name); ?></option>
                                 <?php endif; endforeach; ?>
                             </select>
-                        </label>
-                        <label><?php esc_html_e('Min qty', 'power-discount'); ?>
+                        </div>
+                        <div class="pd-group-field">
+                            <label><?php esc_html_e('Min qty', 'power-discount'); ?></label>
                             <input type="number" name="config_by_type[cross_category][groups][<?php echo (int) $i; ?>][min_qty]" value="<?php echo (int) ($g['min_qty'] ?? 1); ?>" min="1" class="small-text">
-                        </label>
-                        <button type="button" class="button button-small pd-repeater-remove">×</button>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

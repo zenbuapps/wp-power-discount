@@ -1,9 +1,96 @@
-.pd-rule-editor .pd-section { background:#fff; border:1px solid #c3c4c7; padding:16px 20px; margin:16px 0; border-radius:4px; }
-.pd-rule-editor .pd-section-title { margin-top:0; padding-bottom:8px; border-bottom:1px solid #eee; }
-.pd-rule-editor .pd-required { color:#dc3232; }
-.pd-rule-editor .pd-repeater-row { display:flex; align-items:center; gap:8px; margin:6px 0; flex-wrap:wrap; }
-.pd-rule-editor .pd-repeater-row > * { margin-right:4px; }
-.pd-rule-editor .pd-group-row { background:#f9f9f9; padding:10px; border:1px solid #e5e5e5; border-radius:4px; display:block; }
-.pd-rule-editor .pd-group-row label { display:inline-block; margin-right:12px; }
-.pd-rule-editor .pd-cond-fields { display:inline-flex; align-items:center; gap:4px; }
-.pd-rule-editor .form-table th { width:180px; }
+/* === Layout sections === */
+.pd-rule-editor .pd-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 18px 24px 8px;
+    margin: 16px 0;
+    border-radius: 4px;
+}
+.pd-rule-editor .pd-section-title {
+    margin: 0 0 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+}
+.pd-rule-editor .pd-required { color: #dc3232; }
+
+/* Tighter form-table inside our sections */
+.pd-rule-editor .form-table th { width: 200px; padding: 16px 10px 16px 0; }
+.pd-rule-editor .form-table td { padding: 14px 10px; }
+
+/* Description under the discount type select */
+.pd-rule-editor .pd-type-description {
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    background: #f0f7ff;
+    border-left: 3px solid #2271b1;
+    color: #1d4f8a;
+    max-width: 720px;
+    font-style: normal;
+}
+
+/* === Repeater rows (filters / conditions / bulk ranges / nth tiers) === */
+.pd-rule-editor .pd-repeater-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+.pd-rule-editor .pd-repeater-row > * { margin-right: 4px; }
+
+/* Spacing between repeater rows of the same kind */
+.pd-rule-editor .pd-filter-row + .pd-filter-row,
+.pd-rule-editor .pd-condition-row + .pd-condition-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #e5e5e5;
+}
+
+/* === Cross-category group rows === */
+.pd-rule-editor .pd-group-row {
+    display: block;                /* override the flex from .pd-repeater-row */
+    background: #f6f7f7;
+    padding: 16px 18px 18px;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    margin: 14px 0;
+    position: relative;
+}
+.pd-rule-editor .pd-group-row + .pd-group-row { margin-top: 18px; }
+
+.pd-rule-editor .pd-group-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+}
+.pd-rule-editor .pd-group-field label {
+    display: inline-block;
+    min-width: 110px;
+    font-weight: 600;
+    color: #1d2327;
+}
+.pd-rule-editor .pd-group-field .regular-text { flex: 0 1 360px; }
+.pd-rule-editor .pd-group-field .select2 { min-width: 320px; }
+.pd-rule-editor .pd-group-field .small-text { width: 70px; }
+
+/* Remove button positioned at top-right of group */
+.pd-rule-editor .pd-group-remove {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    margin: 0 !important;
+}
+
+/* === Condition fields === */
+.pd-rule-editor .pd-cond-fields {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.pd-rule-editor .pd-cond-fields label { margin-right: 8px; }
+
+/* === Strategy section internal table tighter than top-level == */
+.pd-strategy-section .form-table { margin-top: 0; }
+.pd-strategy-section .form-table th { width: 220px; }
