@@ -82,4 +82,43 @@ final class CartContextTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         new CartItem(1, 'X', -1.0, 1, []);
     }
+
+    public function testCartItemExtendedFields(): void
+    {
+        $item = new CartItem(
+            1, 'Widget', 100.0, 1,
+            [10],
+            [20, 21],
+            ['color' => ['red', 'blue'], 'size' => ['L']],
+            true
+        );
+        self::assertSame([20, 21], $item->getTagIds());
+        self::assertSame(['color' => ['red', 'blue'], 'size' => ['L']], $item->getAttributes());
+        self::assertTrue($item->isOnSale());
+    }
+
+    public function testCartItemDefaultsForExtendedFields(): void
+    {
+        $item = new CartItem(1, 'X', 10.0, 1, []);
+        self::assertSame([], $item->getTagIds());
+        self::assertSame([], $item->getAttributes());
+        self::assertFalse($item->isOnSale());
+    }
+
+    public function testIsInTags(): void
+    {
+        $item = new CartItem(1, 'X', 10.0, 1, [], [5, 6]);
+        self::assertTrue($item->isInTags([5]));
+        self::assertTrue($item->isInTags([7, 6]));
+        self::assertFalse($item->isInTags([99]));
+    }
+
+    public function testHasAttribute(): void
+    {
+        $item = new CartItem(1, 'X', 10.0, 1, [], [], ['color' => ['red', 'blue']]);
+        self::assertTrue($item->hasAttribute('color', ['red']));
+        self::assertTrue($item->hasAttribute('color', ['green', 'blue']));
+        self::assertFalse($item->hasAttribute('color', ['green']));
+        self::assertFalse($item->hasAttribute('size', ['L']));
+    }
 }
