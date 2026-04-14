@@ -60,6 +60,19 @@ final class RuleRepository
         return array_map([$this, 'hydrate'], $rows);
     }
 
+    /**
+     * @return Rule[] all rules ordered by priority ASC, id ASC (regardless of status)
+     */
+    public function findAll(): array
+    {
+        $rows = $this->db->findWhere(
+            $this->table(),
+            [],
+            ['priority' => 'ASC', 'id' => 'ASC']
+        );
+        return array_map([$this, 'hydrate'], $rows);
+    }
+
     public function incrementUsedCount(int $id): void
     {
         $this->db->incrementColumn($this->table(), 'used_count', ['id' => $id]);

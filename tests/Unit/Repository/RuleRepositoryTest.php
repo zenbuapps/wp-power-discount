@@ -95,6 +95,19 @@ final class RuleRepositoryTest extends TestCase
         self::assertSame(6, $found->getUsedCount());
     }
 
+    public function testFindAllReturnsBothEnabledAndDisabled(): void
+    {
+        $this->repo->insert(new Rule(['title' => 'A', 'type' => 'simple', 'status' => RuleStatus::ENABLED, 'priority' => 5]));
+        $this->repo->insert(new Rule(['title' => 'B', 'type' => 'simple', 'status' => RuleStatus::DISABLED, 'priority' => 10]));
+        $this->repo->insert(new Rule(['title' => 'C', 'type' => 'simple', 'status' => RuleStatus::ENABLED, 'priority' => 15]));
+
+        $all = $this->repo->findAll();
+        self::assertCount(3, $all);
+        self::assertSame('A', $all[0]->getTitle());
+        self::assertSame('B', $all[1]->getTitle());
+        self::assertSame('C', $all[2]->getTitle());
+    }
+
     public function testUpdatePreservesUsedCount(): void
     {
         $original = new Rule([

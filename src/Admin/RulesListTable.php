@@ -40,7 +40,7 @@ final class RulesListTable extends \WP_List_Table
     {
         $this->_column_headers = [$this->get_columns(), [], []];
         // Phase 4b: show ALL rules (no pagination, status filter), sorted by priority.
-        $rules = $this->rules->getActiveRules(); // active only first
+        $rules = $this->rules->findAll();
         $allRows = [];
         foreach ($rules as $rule) {
             $allRows[] = $this->ruleToRow($rule);
