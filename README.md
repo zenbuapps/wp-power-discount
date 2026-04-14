@@ -4,15 +4,21 @@ WooCommerce discount rules engine — Taiwan-first.
 
 ## Status
 
-**Phase 4b (PHP Admin UI)** — complete.
+**Phase 4c (Frontend + Reports)** — complete. **MVP feature-complete.**
 
-- Admin menu under `WooCommerce → Power Discount`
-- Rule list page (WP_List_Table): edit / duplicate / delete / AJAX status toggle
-- Rule edit page (PHP form): title, type, status, priority, exclusive, schedule, usage limit, label, notes + JSON textareas for `config`, `filters`, `conditions`
-- `RuleFormMapper` validates JSON and field requirements (unit-tested)
-- Admin notices via transient queue
+Frontend:
+- `[power_discount_table id=PRODUCT_ID]` shortcode renders bulk-tier price tables for a given product
+- Free shipping progress bar appears on cart and checkout pages, computed via `FreeShippingProgressHelper` from active `free_shipping` rules with `cart_subtotal` thresholds
 
-Pending: React rule builder (Phase 4d, optional), Frontend price table / shipping bar / saved label (Phase 4c), Reports page (Phase 4c).
+Admin:
+- `WooCommerce → PD Reports` shows total discount given, orders affected, and per-rule performance table sorted by total amount
+
+All 8 strategies, 13 conditions, 6 filters, full Admin CRUD, WC integration (cart/order/shipping hooks), and reports are now in place.
+
+Pending (post-MVP):
+- React rule builder (Phase 4d, optional polish)
+- BulkStrategy `per_category` scope
+- BuyXGetY `cheapest_from_filter` reward target
 
 ## Requirements
 

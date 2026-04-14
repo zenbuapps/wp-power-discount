@@ -21,8 +21,13 @@ use PowerDiscount\Condition\UserRoleCondition;
 use PowerDiscount\Admin\AdminMenu;
 use PowerDiscount\Admin\AjaxController;
 use PowerDiscount\Admin\Notices;
+use PowerDiscount\Admin\ReportsPage;
 use PowerDiscount\Admin\RuleEditPage;
 use PowerDiscount\Admin\RulesListPage;
+use PowerDiscount\Frontend\FreeShippingBar;
+use PowerDiscount\Frontend\FreeShippingProgressHelper;
+use PowerDiscount\Frontend\PriceTableShortcode;
+use PowerDiscount\Repository\ReportsRepository;
 use PowerDiscount\Engine\Aggregator;
 use PowerDiscount\Engine\Calculator;
 use PowerDiscount\Engine\ExclusivityResolver;
@@ -102,10 +107,16 @@ final class Plugin
         (new OrderDiscountLogger($rulesRepo, $orderDiscountsRepo, $cartHooks))->register();
         (new ShippingHooks($rulesRepo, $calculator, $aggregator, $builder, $cartHooks))->register();
 
+        // Frontend components (cart/checkout pages)
+        $progressHelper = new FreeShippingProgressHelper();
+        (new FreeShippingBar($rulesRepo, $builder, $progressHelper))->register();
+        (new PriceTableShortcode($rulesRepo))->register();
+
         if (is_admin()) {
             $listPage = new RulesListPage($rulesRepo);
             $editPage = new RuleEditPage($rulesRepo);
-            (new AdminMenu($rulesRepo, $listPage, $editPage))->register();
+            $reportsPage = new ReportsPage(new ReportsRepository($db));
+            (new AdminMenu($rulesRepo, $listPage, $editPage, $reportsPage))->register();
             (new AjaxController($rulesRepo))->register();
             (new Notices())->register();
         }
