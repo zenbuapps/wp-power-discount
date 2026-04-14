@@ -31,18 +31,28 @@ final class AdminMenu
 
     public function registerMenu(): void
     {
+        add_menu_page(
+            __('PowerDiscount', 'power-discount'),
+            __('PowerDiscount', 'power-discount'),
+            'manage_woocommerce',
+            'power-discount',
+            [$this, 'route'],
+            'dashicons-tag',
+            55.6
+        );
+        // First submenu auto-duplicates the parent; rename it.
         add_submenu_page(
-            'woocommerce',
-            __('Power Discount', 'power-discount'),
-            __('Power Discount', 'power-discount'),
+            'power-discount',
+            __('Discount Rules', 'power-discount'),
+            __('Discount Rules', 'power-discount'),
             'manage_woocommerce',
             'power-discount',
             [$this, 'route']
         );
         add_submenu_page(
-            'woocommerce',
-            __('Power Discount Reports', 'power-discount'),
-            __('PD Reports', 'power-discount'),
+            'power-discount',
+            __('Reports', 'power-discount'),
+            __('Reports', 'power-discount'),
             'manage_woocommerce',
             'power-discount-reports',
             [$this->reportsPage, 'render']
