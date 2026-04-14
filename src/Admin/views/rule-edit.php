@@ -27,7 +27,7 @@ $partialsDir = POWER_DISCOUNT_DIR . 'src/Admin/views/partials/';
             <h2 class="pd-section-title"><?php esc_html_e('1. Basic details', 'power-discount'); ?></h2>
             <table class="form-table">
                 <tr>
-                    <th><label for="pd-title"><?php esc_html_e('Rule name', 'power-discount'); ?> <span class="pd-required">*</span></label></th>
+                    <th><label for="pd-title"><?php esc_html_e('Rule name', 'power-discount'); ?></label></th>
                     <td><input type="text" id="pd-title" name="title" value="<?php echo esc_attr($rule->getTitle()); ?>" class="regular-text" required></td>
                 </tr>
                 <tr>
@@ -50,26 +50,41 @@ $partialsDir = POWER_DISCOUNT_DIR . 'src/Admin/views/partials/';
                         </select>
                     </td>
                 </tr>
+                <input type="hidden" name="priority" value="<?php echo (int) $rule->getPriority(); ?>">
                 <tr>
-                    <th><label for="pd-priority"><?php esc_html_e('Priority', 'power-discount'); ?></label></th>
+                    <th><label><?php esc_html_e('Stop after match', 'power-discount'); ?></label></th>
                     <td>
-                        <input type="number" id="pd-priority" name="priority" value="<?php echo (int) $rule->getPriority(); ?>" min="0" class="small-text">
-                        <p class="description"><?php esc_html_e('Lower number = higher priority.', 'power-discount'); ?></p>
+                        <label><input type="checkbox" name="exclusive" value="1"<?php checked($rule->isExclusive(), true); ?>> <?php esc_html_e('When this rule applies, stop processing the remaining rules.', 'power-discount'); ?></label>
                     </td>
                 </tr>
-                <tr>
-                    <th><label><?php esc_html_e('Exclusive', 'power-discount'); ?></label></th>
-                    <td>
-                        <label><input type="checkbox" name="exclusive" value="1"<?php checked($rule->isExclusive(), true); ?>> <?php esc_html_e('Stop after this rule matches', 'power-discount'); ?></label>
-                    </td>
-                </tr>
+                <?php
+                $scheduleMeta = $rule->getScheduleMeta();
+                $scheduleMode = ($scheduleMeta['type'] ?? '') === 'monthly' ? 'monthly' : 'once';
+                $scheduleDayFrom = (int) ($scheduleMeta['day_from'] ?? 1);
+                $scheduleDayTo = (int) ($scheduleMeta['day_to'] ?? 31);
+                ?>
                 <tr>
                     <th><?php esc_html_e('Schedule', 'power-discount'); ?></th>
                     <td>
-                        <input type="text" name="starts_at" value="<?php echo esc_attr((string) $rule->getStartsAt()); ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="regular-text">
-                        <?php esc_html_e('to', 'power-discount'); ?>
-                        <input type="text" name="ends_at" value="<?php echo esc_attr((string) $rule->getEndsAt()); ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="regular-text">
-                        <p class="description"><?php esc_html_e('Leave blank for no schedule limit.', 'power-discount'); ?></p>
+                        <p>
+                            <label><input type="radio" name="schedule_mode" value="once" class="pd-schedule-mode"<?php checked($scheduleMode, 'once'); ?>> <?php esc_html_e('One-off date range', 'power-discount'); ?></label>
+                            &nbsp;&nbsp;
+                            <label><input type="radio" name="schedule_mode" value="monthly" class="pd-schedule-mode"<?php checked($scheduleMode, 'monthly'); ?>> <?php esc_html_e('Repeat every month', 'power-discount'); ?></label>
+                        </p>
+                        <div class="pd-schedule-once"<?php echo $scheduleMode === 'once' ? '' : ' style="display:none"'; ?>>
+                            <input type="text" name="starts_at" value="<?php echo esc_attr((string) $rule->getStartsAt()); ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="regular-text">
+                            <?php esc_html_e('to', 'power-discount'); ?>
+                            <input type="text" name="ends_at" value="<?php echo esc_attr((string) $rule->getEndsAt()); ?>" placeholder="YYYY-MM-DD HH:MM:SS" class="regular-text">
+                            <p class="description"><?php esc_html_e('Leave blank for no schedule limit.', 'power-discount'); ?></p>
+                        </div>
+                        <div class="pd-schedule-monthly"<?php echo $scheduleMode === 'monthly' ? '' : ' style="display:none"'; ?>>
+                            <?php esc_html_e('Day', 'power-discount'); ?>
+                            <input type="number" name="schedule_day_from" value="<?php echo (int) $scheduleDayFrom; ?>" min="1" max="31" class="small-text">
+                            <?php esc_html_e('to', 'power-discount'); ?>
+                            <input type="number" name="schedule_day_to" value="<?php echo (int) $scheduleDayTo; ?>" min="1" max="31" class="small-text">
+                            <?php esc_html_e('of every month', 'power-discount'); ?>
+                            <p class="description"><?php esc_html_e('Example: set 20–30 to run on the 20th through the 30th of every month.', 'power-discount'); ?></p>
+                        </div>
                     </td>
                 </tr>
                 <tr>

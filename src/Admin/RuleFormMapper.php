@@ -53,6 +53,22 @@ final class RuleFormMapper
         $usageLimitRaw = trim((string) ($post['usage_limit'] ?? ''));
         $usageLimit = $usageLimitRaw === '' ? null : (int) $usageLimitRaw;
 
+        $scheduleMode = (string) ($post['schedule_mode'] ?? 'once');
+        $scheduleMeta = [];
+        if ($scheduleMode === 'monthly') {
+            $dayFrom = isset($post['schedule_day_from']) ? (int) $post['schedule_day_from'] : 1;
+            $dayTo = isset($post['schedule_day_to']) ? (int) $post['schedule_day_to'] : 31;
+            if ($dayFrom < 1) $dayFrom = 1;
+            if ($dayFrom > 31) $dayFrom = 31;
+            if ($dayTo < 1) $dayTo = 1;
+            if ($dayTo > 31) $dayTo = 31;
+            $scheduleMeta = [
+                'type'     => 'monthly',
+                'day_from' => $dayFrom,
+                'day_to'   => $dayTo,
+            ];
+        }
+
         return new Rule([
             'id'          => (int) ($post['id'] ?? 0),
             'title'       => $title,
@@ -69,6 +85,7 @@ final class RuleFormMapper
             'config'      => $config,
             'label'       => isset($post['label']) && $post['label'] !== '' ? (string) $post['label'] : null,
             'notes'       => null,
+            'schedule_meta' => $scheduleMeta,
         ]);
     }
 

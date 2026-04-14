@@ -20,6 +20,27 @@ final class AjaxController
     {
         add_action('wp_ajax_pd_toggle_rule_status', [$this, 'toggleStatus']);
         add_action('wp_ajax_pd_search_terms', [$this, 'searchTerms']);
+        add_action('wp_ajax_pd_reorder_rules', [$this, 'reorderRules']);
+    }
+
+    public function reorderRules(): void
+    {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(['message' => 'Permission denied'], 403);
+        }
+        check_ajax_referer('power_discount_admin', 'nonce');
+
+        $ids = isset($_POST['ids']) && is_array($_POST['ids']) ? $_POST['ids'] : [];
+        $ordered = array_values(array_filter(
+            array_map('intval', $ids),
+            static function (int $id): bool { return $id > 0; }
+        ));
+        if ($ordered === []) {
+            wp_send_json_error(['message' => 'No ids provided'], 400);
+        }
+
+        $this->rules->reorder($ordered);
+        wp_send_json_success(['count' => count($ordered)]);
     }
 
     public function toggleStatus(): void

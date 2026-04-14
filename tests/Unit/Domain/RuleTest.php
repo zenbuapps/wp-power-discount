@@ -63,6 +63,37 @@ final class RuleTest extends TestCase
         self::assertTrue($rule->isActiveAt(time()));
     }
 
+    public function testIsActiveAtWithMonthlyRecurrence(): void
+    {
+        $rule = new Rule([
+            'title' => 't', 'type' => 'simple',
+            'schedule_meta' => ['type' => 'monthly', 'day_from' => 20, 'day_to' => 30],
+        ]);
+
+        self::assertFalse($rule->isActiveAt(strtotime('2026-04-19 12:00:00')));
+        self::assertTrue($rule->isActiveAt(strtotime('2026-04-20 00:00:00')));
+        self::assertTrue($rule->isActiveAt(strtotime('2026-04-25 12:00:00')));
+        self::assertTrue($rule->isActiveAt(strtotime('2026-04-30 23:59:59')));
+        self::assertFalse($rule->isActiveAt(strtotime('2026-05-01 00:00:00')));
+        // next month still inside window
+        self::assertTrue($rule->isActiveAt(strtotime('2026-05-22 12:00:00')));
+    }
+
+    public function testIsActiveAtMonthlyWrapAroundRange(): void
+    {
+        $rule = new Rule([
+            'title' => 't', 'type' => 'simple',
+            'schedule_meta' => ['type' => 'monthly', 'day_from' => 28, 'day_to' => 3],
+        ]);
+
+        self::assertTrue($rule->isActiveAt(strtotime('2026-04-28 12:00:00')));
+        self::assertTrue($rule->isActiveAt(strtotime('2026-04-30 12:00:00')));
+        self::assertTrue($rule->isActiveAt(strtotime('2026-05-01 12:00:00')));
+        self::assertTrue($rule->isActiveAt(strtotime('2026-05-03 23:59:59')));
+        self::assertFalse($rule->isActiveAt(strtotime('2026-05-04 00:00:00')));
+        self::assertFalse($rule->isActiveAt(strtotime('2026-05-15 12:00:00')));
+    }
+
     public function testUsageLimitExhausted(): void
     {
         $unlimited = new Rule(['title' => 't', 'type' => 'simple']);

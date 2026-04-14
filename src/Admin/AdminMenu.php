@@ -90,10 +90,11 @@ final class AdminMenu
             [],
             POWER_DISCOUNT_VERSION
         );
+        wp_enqueue_style('dashicons');
         wp_enqueue_script(
             'power-discount-admin',
             POWER_DISCOUNT_URL . 'assets/admin/admin.js',
-            ['jquery', 'wc-enhanced-select'],
+            ['jquery', 'jquery-ui-sortable', 'wc-enhanced-select'],
             POWER_DISCOUNT_VERSION,
             true
         );

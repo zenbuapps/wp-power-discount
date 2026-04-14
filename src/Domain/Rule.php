@@ -22,6 +22,8 @@ final class Rule
     private array $config;
     private ?string $label;
     private ?string $notes;
+    /** @var array<string, mixed> */
+    private array $scheduleMeta;
 
     public function __construct(array $data)
     {
@@ -44,6 +46,7 @@ final class Rule
         $this->config     = (array) ($data['config'] ?? []);
         $this->label      = isset($data['label']) && $data['label'] !== '' ? (string) $data['label'] : null;
         $this->notes      = isset($data['notes']) && $data['notes'] !== '' ? (string) $data['notes'] : null;
+        $this->scheduleMeta = is_array($data['schedule_meta'] ?? null) ? $data['schedule_meta'] : [];
     }
 
     public function getId(): int            { return $this->id; }
@@ -62,6 +65,8 @@ final class Rule
     public function getUsedCount(): int     { return $this->usedCount; }
     public function getStartsAt(): ?string    { return $this->startsAtRaw; }
     public function getEndsAt(): ?string      { return $this->endsAtRaw; }
+    /** @return array<string, mixed> */
+    public function getScheduleMeta(): array  { return $this->scheduleMeta; }
 
     public function isActiveAt(int $timestamp): bool
     {
@@ -70,6 +75,24 @@ final class Rule
         }
         if ($this->endsAt !== null && $timestamp > $this->endsAt) {
             return false;
+        }
+        $type = (string) ($this->scheduleMeta['type'] ?? '');
+        if ($type === 'monthly') {
+            $day = (int) gmdate('j', $timestamp);
+            $from = (int) ($this->scheduleMeta['day_from'] ?? 1);
+            $to = (int) ($this->scheduleMeta['day_to'] ?? 31);
+            if ($from < 1) $from = 1;
+            if ($to > 31) $to = 31;
+            if ($from <= $to) {
+                if ($day < $from || $day > $to) {
+                    return false;
+                }
+            } else {
+                // wrap-around: e.g. 28..3 means 28,29,30,31,1,2,3
+                if ($day < $from && $day > $to) {
+                    return false;
+                }
+            }
         }
         return true;
     }

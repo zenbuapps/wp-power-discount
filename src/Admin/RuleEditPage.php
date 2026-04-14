@@ -109,6 +109,8 @@ final class RuleEditPage
             $this->rules->update($rule);
             Notices::add(__('Rule updated.', 'power-discount'), 'success');
         } else {
+            // New rules go to the bottom of the list. Priority is managed via drag & drop.
+            $rule = self::withPriority($rule, $this->rules->getMaxPriority() + 1);
             $newId = $this->rules->insert($rule);
             Notices::add(__('Rule created.', 'power-discount'), 'success');
             wp_safe_redirect(add_query_arg([
@@ -125,5 +127,27 @@ final class RuleEditPage
             'id'     => $rule->getId(),
         ], admin_url('admin.php')));
         exit;
+    }
+
+    private static function withPriority(Rule $rule, int $priority): Rule
+    {
+        return new Rule([
+            'id'            => $rule->getId(),
+            'title'         => $rule->getTitle(),
+            'type'          => $rule->getType(),
+            'status'        => $rule->getStatus(),
+            'priority'      => $priority,
+            'exclusive'     => $rule->isExclusive(),
+            'starts_at'     => $rule->getStartsAt(),
+            'ends_at'       => $rule->getEndsAt(),
+            'usage_limit'   => $rule->getUsageLimit(),
+            'used_count'    => $rule->getUsedCount(),
+            'filters'       => $rule->getFilters(),
+            'conditions'    => $rule->getConditions(),
+            'config'        => $rule->getConfig(),
+            'label'         => $rule->getLabel(),
+            'notes'         => $rule->getNotes(),
+            'schedule_meta' => $rule->getScheduleMeta(),
+        ]);
     }
 }

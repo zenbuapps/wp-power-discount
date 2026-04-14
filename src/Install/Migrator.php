@@ -5,7 +5,7 @@ namespace PowerDiscount\Install;
 
 final class Migrator
 {
-    private const SCHEMA_VERSION = '1';
+    private const SCHEMA_VERSION = '2';
     private const OPTION_KEY = 'power_discount_schema_version';
 
     public static function migrate(): void
@@ -39,6 +39,7 @@ final class Migrator
             config LONGTEXT NOT NULL,
             label VARCHAR(255) NULL DEFAULT NULL,
             notes TEXT NULL DEFAULT NULL,
+            schedule_meta LONGTEXT NULL DEFAULT NULL,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NOT NULL,
             PRIMARY KEY  (id),

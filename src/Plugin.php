@@ -88,6 +88,11 @@ final class Plugin
             return;
         }
 
+        // Run schema upgrades on admin pageload so bumps land without needing reactivation.
+        if (is_admin()) {
+            add_action('admin_init', [\PowerDiscount\Install\Migrator::class, 'migrate']);
+        }
+
         $strategies = $this->buildStrategyRegistry();
         $conditions = $this->buildConditionRegistry();
         $filters = $this->buildFilterRegistry();

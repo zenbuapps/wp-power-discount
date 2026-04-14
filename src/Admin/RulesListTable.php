@@ -47,11 +47,12 @@ final class RulesListTable extends \WP_List_Table
     public function get_columns(): array
     {
         return [
+            'order'      => '<span class="pd-help-tip" title="' .
+                esc_attr__('Drag rows to reorder. Rules run from top to bottom.', 'power-discount') .
+                '">#</span>',
             'status'     => __('Status', 'power-discount'),
             'title'      => __('Title', 'power-discount'),
             'type'       => __('Type', 'power-discount'),
-            'priority'   => __('Priority', 'power-discount') . ' <span class="pd-help-tip" title="' .
-                esc_attr__('Lower number = higher priority. Rules run in priority ascending order.', 'power-discount') . '">?</span>',
             'schedule'   => __('Schedule', 'power-discount'),
             'used_count' => __('Used', 'power-discount'),
         ];
@@ -62,10 +63,29 @@ final class RulesListTable extends \WP_List_Table
         $this->_column_headers = [$this->get_columns(), [], []];
         $rules = $this->rules->findAll();
         $allRows = [];
+        $position = 1;
         foreach ($rules as $rule) {
-            $allRows[] = $this->ruleToRow($rule);
+            $row = $this->ruleToRow($rule);
+            $row['position'] = $position++;
+            $allRows[] = $row;
         }
         $this->items = $allRows;
+    }
+
+    /** @param array<string, mixed> $item */
+    public function single_row($item): void
+    {
+        echo '<tr data-id="' . (int) $item['id'] . '">';
+        $this->single_row_columns($item);
+        echo '</tr>';
+    }
+
+    /** @param array<string, mixed> $item */
+    public function column_order($item): string
+    {
+        return '<span class="pd-drag-handle dashicons dashicons-menu" title="' .
+            esc_attr__('Drag to reorder', 'power-discount') .
+            '"></span><span class="pd-priority-pill">' . (int) $item['position'] . '</span>';
     }
 
     /**
@@ -74,14 +94,15 @@ final class RulesListTable extends \WP_List_Table
     private function ruleToRow(Rule $rule): array
     {
         return [
-            'id'         => $rule->getId(),
-            'title'      => $rule->getTitle(),
-            'type'       => $rule->getType(),
-            'status'     => $rule->getStatus(),
-            'priority'   => $rule->getPriority(),
-            'starts_at'  => $rule->getStartsAt(),
-            'ends_at'    => $rule->getEndsAt(),
-            'used_count' => $rule->getUsedCount(),
+            'id'            => $rule->getId(),
+            'title'         => $rule->getTitle(),
+            'type'          => $rule->getType(),
+            'status'        => $rule->getStatus(),
+            'priority'      => $rule->getPriority(),
+            'starts_at'     => $rule->getStartsAt(),
+            'ends_at'       => $rule->getEndsAt(),
+            'used_count'    => $rule->getUsedCount(),
+            'schedule_meta' => $rule->getScheduleMeta(),
         ];
     }
 
@@ -151,14 +172,16 @@ final class RulesListTable extends \WP_List_Table
     }
 
     /** @param array<string, mixed> $item */
-    public function column_priority($item): string
-    {
-        return '<span class="pd-priority-pill">' . (int) $item['priority'] . '</span>';
-    }
-
-    /** @param array<string, mixed> $item */
     public function column_schedule($item): string
     {
+        $meta = (array) ($item['schedule_meta'] ?? []);
+        if (($meta['type'] ?? '') === 'monthly') {
+            $from = (int) ($meta['day_from'] ?? 1);
+            $to = (int) ($meta['day_to'] ?? 31);
+            return '<span class="pd-schedule">' .
+                esc_html(sprintf(__('Every month %d–%d', 'power-discount'), $from, $to)) .
+                '</span>';
+        }
         $start = (string) ($item['starts_at'] ?? '');
         $end = (string) ($item['ends_at'] ?? '');
         if ($start === '' && $end === '') {

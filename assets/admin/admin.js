@@ -316,8 +316,57 @@
         }
     }
 
+    // --- Schedule mode toggle (once vs monthly) ---
+    $(document).on('change', '.pd-schedule-mode', function () {
+        var mode = $(this).val();
+        var $wrap = $(this).closest('td');
+        $wrap.find('.pd-schedule-once').toggle(mode === 'once');
+        $wrap.find('.pd-schedule-monthly').toggle(mode === 'monthly');
+    });
+
+    // --- Drag & drop reorder on rules list ---
+    function initRulesSortable() {
+        var $tbody = $('.pd-rules-list .wp-list-table tbody');
+        if (!$tbody.length || typeof $tbody.sortable !== 'function') {
+            return;
+        }
+        $tbody.sortable({
+            items: 'tr[data-id]',
+            handle: '.pd-drag-handle',
+            cursor: 'move',
+            axis: 'y',
+            helper: function (e, tr) {
+                var $originals = tr.children();
+                var $helper = tr.clone();
+                $helper.children().each(function (index) {
+                    $(this).width($originals.eq(index).width());
+                });
+                return $helper;
+            },
+            placeholder: 'pd-sortable-placeholder',
+            forcePlaceholderSize: true,
+            update: function () {
+                var ids = $tbody.find('tr[data-id]').map(function () {
+                    return $(this).data('id');
+                }).get();
+                $tbody.css('opacity', 0.5);
+                $.post(PowerDiscountAdmin.ajaxUrl, {
+                    action: 'pd_reorder_rules',
+                    nonce: PowerDiscountAdmin.nonce,
+                    ids: ids
+                }).done(function () {
+                    window.location.reload();
+                }).fail(function () {
+                    $tbody.css('opacity', 1);
+                    window.alert((PowerDiscountAdmin.i18n && PowerDiscountAdmin.i18n.reorderFailed) || 'Reorder failed');
+                });
+            }
+        });
+    }
+
     $(function () {
         initEnhancedSelects();
+        initRulesSortable();
     });
 
 })(jQuery);

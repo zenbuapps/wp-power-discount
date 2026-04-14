@@ -103,6 +103,7 @@ final class RuleRepository
             'config'      => JsonSerializer::encode($rule->getConfig()),
             'label'       => $rule->getLabel(),
             'notes'       => $rule->getNotes(),
+            'schedule_meta' => JsonSerializer::encode($rule->getScheduleMeta()),
         ];
     }
 
@@ -127,6 +128,39 @@ final class RuleRepository
             'config'      => JsonSerializer::decode((string) ($row['config'] ?? '')),
             'label'       => $row['label'] ?? null,
             'notes'       => $row['notes'] ?? null,
+            'schedule_meta' => JsonSerializer::decode((string) ($row['schedule_meta'] ?? '')),
         ]);
+    }
+
+    /**
+     * Reassign priority values 1..N based on the given ordered rule IDs.
+     *
+     * @param int[] $orderedIds
+     */
+    public function reorder(array $orderedIds): void
+    {
+        $position = 1;
+        foreach ($orderedIds as $id) {
+            $id = (int) $id;
+            if ($id <= 0) continue;
+            $this->db->update(
+                $this->table(),
+                ['priority' => $position, 'updated_at' => gmdate('Y-m-d H:i:s')],
+                ['id' => $id]
+            );
+            $position++;
+        }
+    }
+
+    public function getMaxPriority(): int
+    {
+        $rules = $this->findAll();
+        $max = 0;
+        foreach ($rules as $rule) {
+            if ($rule->getPriority() > $max) {
+                $max = $rule->getPriority();
+            }
+        }
+        return $max;
     }
 }
