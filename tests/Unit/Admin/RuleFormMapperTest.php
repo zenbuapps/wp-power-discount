@@ -5,17 +5,18 @@ namespace PowerDiscount\Tests\Unit\Admin;
 
 use PHPUnit\Framework\TestCase;
 use PowerDiscount\Admin\RuleFormMapper;
-use PowerDiscount\Domain\Rule;
 use PowerDiscount\Domain\RuleStatus;
 
 final class RuleFormMapperTest extends TestCase
 {
-    public function testFromFormDataMinimal(): void
+    public function testSimpleMinimal(): void
     {
         $rule = RuleFormMapper::fromFormData([
             'title' => 'Test',
-            'type' => 'simple',
-            'config_json' => '{"method":"percentage","value":10}',
+            'type'  => 'simple',
+            'config_by_type' => [
+                'simple' => ['method' => 'percentage', 'value' => 10],
+            ],
         ]);
 
         self::assertSame('Test', $rule->getTitle());
@@ -23,41 +24,99 @@ final class RuleFormMapperTest extends TestCase
         self::assertSame(RuleStatus::ENABLED, $rule->getStatus());
         self::assertSame(10, $rule->getPriority());
         self::assertFalse($rule->isExclusive());
-        self::assertSame(['method' => 'percentage', 'value' => 10], $rule->getConfig());
+        self::assertSame(['method' => 'percentage', 'value' => 10.0], $rule->getConfig());
         self::assertSame([], $rule->getFilters());
         self::assertSame([], $rule->getConditions());
+        self::assertNull($rule->getNotes());
     }
 
-    public function testFromFormDataFull(): void
+    public function testIgnoresOtherTypesConfig(): void
+    {
+        // When type=simple, any config_by_type[bulk] data must be discarded.
+        $rule = RuleFormMapper::fromFormData([
+            'title' => 'X',
+            'type'  => 'simple',
+            'config_by_type' => [
+                'simple' => ['method' => 'percentage', 'value' => 5],
+                'bulk'   => ['ranges' => [['from' => 1, 'method' => 'percentage', 'value' => 20]]],
+            ],
+        ]);
+        self::assertSame(['method' => 'percentage', 'value' => 5.0], $rule->getConfig());
+    }
+
+    public function testBulkConfig(): void
     {
         $rule = RuleFormMapper::fromFormData([
-            'id' => '42',
-            'title' => 'Full',
-            'type' => 'bulk',
-            'status' => '0',
-            'priority' => '5',
-            'exclusive' => '1',
-            'starts_at' => '2026-04-01 00:00:00',
-            'ends_at' => '2026-04-30 23:59:59',
-            'usage_limit' => '100',
-            'label' => 'Big sale',
-            'notes' => 'Internal note',
-            'config_json' => '{"count_scope":"cumulative","ranges":[]}',
-            'filters_json' => '{"items":[]}',
-            'conditions_json' => '{"logic":"and","items":[]}',
+            'title' => 'B', 'type' => 'bulk',
+            'config_by_type' => [
+                'bulk' => [
+                    'count_scope' => 'cumulative',
+                    'ranges' => [
+                        ['from' => 1, 'to' => 4, 'method' => 'percentage', 'value' => 5],
+                        ['from' => 5, 'to' => '', 'method' => 'percentage', 'value' => 10],
+                    ],
+                ],
+            ],
         ]);
+        $config = $rule->getConfig();
+        self::assertSame('cumulative', $config['count_scope']);
+        self::assertCount(2, $config['ranges']);
+        self::assertSame(1, $config['ranges'][0]['from']);
+        self::assertSame(4, $config['ranges'][0]['to']);
+        self::assertNull($config['ranges'][1]['to']);
+    }
 
-        self::assertSame(42, $rule->getId());
-        self::assertSame('Full', $rule->getTitle());
-        self::assertSame('bulk', $rule->getType());
-        self::assertSame(RuleStatus::DISABLED, $rule->getStatus());
-        self::assertSame(5, $rule->getPriority());
-        self::assertTrue($rule->isExclusive());
-        self::assertSame('2026-04-01 00:00:00', $rule->getStartsAt());
-        self::assertSame('2026-04-30 23:59:59', $rule->getEndsAt());
-        self::assertSame(100, $rule->getUsageLimit());
-        self::assertSame('Big sale', $rule->getLabel());
-        self::assertSame('Internal note', $rule->getNotes());
+    public function testSetConfig(): void
+    {
+        $rule = RuleFormMapper::fromFormData([
+            'title' => 'S', 'type' => 'set',
+            'config_by_type' => [
+                'set' => ['bundle_size' => 2, 'method' => 'set_flat_off', 'value' => 100, 'repeat' => 1],
+            ],
+        ]);
+        $c = $rule->getConfig();
+        self::assertSame(2, $c['bundle_size']);
+        self::assertSame('set_flat_off', $c['method']);
+        self::assertTrue($c['repeat']);
+    }
+
+    public function testFiltersNormalised(): void
+    {
+        $rule = RuleFormMapper::fromFormData([
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 10]],
+            'filters' => [
+                'items' => [
+                    ['type' => 'categories', 'method' => 'in', 'ids' => [12, '13', 'abc']],
+                    ['type' => 'all_products'],
+                    ['type' => '', 'method' => 'in'], // dropped
+                ],
+            ],
+        ]);
+        $filters = $rule->getFilters();
+        self::assertCount(2, $filters['items']);
+        self::assertSame([12, 13], $filters['items'][0]['ids']);
+        self::assertSame('all_products', $filters['items'][1]['type']);
+    }
+
+    public function testConditionsNormalised(): void
+    {
+        $rule = RuleFormMapper::fromFormData([
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 10]],
+            'conditions' => [
+                'logic' => 'or',
+                'items' => [
+                    ['type' => 'cart_subtotal', 'operator' => '>=', 'value' => 500],
+                    ['type' => 'user_role', 'roles' => ['customer', 'subscriber']],
+                ],
+            ],
+        ]);
+        $conditions = $rule->getConditions();
+        self::assertSame('or', $conditions['logic']);
+        self::assertCount(2, $conditions['items']);
+        self::assertSame(500.0, $conditions['items'][0]['value']);
+        self::assertSame(['customer', 'subscriber'], $conditions['items'][1]['roles']);
     }
 
     public function testRejectsMissingTitle(): void
@@ -65,9 +124,8 @@ final class RuleFormMapperTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/title/i');
         RuleFormMapper::fromFormData([
-            'title' => '',
-            'type' => 'simple',
-            'config_json' => '{}',
+            'title' => '', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 10]],
         ]);
     }
 
@@ -75,83 +133,58 @@ final class RuleFormMapperTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/type/i');
-        RuleFormMapper::fromFormData([
-            'title' => 'X',
-            'type' => 'nonsense',
-            'config_json' => '{}',
-        ]);
+        RuleFormMapper::fromFormData(['title' => 'X', 'type' => 'bogus']);
     }
 
-    public function testRejectsInvalidConfigJson(): void
+    public function testRejectsSimpleWithoutMethod(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/config/i');
+        $this->expectExceptionMessageMatches('/method/i');
         RuleFormMapper::fromFormData([
-            'title' => 'X',
-            'type' => 'simple',
-            'config_json' => '{not json',
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['value' => 10]],
         ]);
     }
 
-    public function testEmptyDateFieldsAcceptedAsNull(): void
-    {
-        $rule = RuleFormMapper::fromFormData([
-            'title' => 'X',
-            'type' => 'simple',
-            'config_json' => '{}',
-            'starts_at' => '',
-            'ends_at' => '',
-            'usage_limit' => '',
-        ]);
-        self::assertNull($rule->getStartsAt());
-        self::assertNull($rule->getEndsAt());
-        self::assertNull($rule->getUsageLimit());
-    }
-
-    public function testToFormDataRoundTrip(): void
-    {
-        $original = RuleFormMapper::fromFormData([
-            'title' => 'Round',
-            'type' => 'cart',
-            'priority' => '15',
-            'config_json' => '{"method":"percentage","value":10}',
-            'conditions_json' => '{"logic":"and","items":[{"type":"cart_subtotal","operator":">=","value":500}]}',
-        ]);
-
-        $formData = RuleFormMapper::toFormData($original);
-
-        self::assertSame('Round', $formData['title']);
-        self::assertSame('cart', $formData['type']);
-        self::assertSame(15, $formData['priority']);
-
-        // config_json should pretty-print or at least round-trip via decode
-        $configBack = json_decode($formData['config_json'], true);
-        self::assertSame(['method' => 'percentage', 'value' => 10], $configBack);
-
-        $conditionsBack = json_decode($formData['conditions_json'], true);
-        self::assertSame('and', $conditionsBack['logic']);
-    }
-
-    public function testAcceptsAllValidStrategyTypes(): void
-    {
-        $types = ['simple', 'bulk', 'cart', 'set', 'buy_x_get_y', 'nth_item', 'cross_category', 'free_shipping'];
-        foreach ($types as $type) {
-            $rule = RuleFormMapper::fromFormData([
-                'title' => 't',
-                'type' => $type,
-                'config_json' => '{}',
-            ]);
-            self::assertSame($type, $rule->getType());
-        }
-    }
-
-    public function testNonObjectJsonRejected(): void
+    public function testRejectsSimpleWithZeroValue(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         RuleFormMapper::fromFormData([
-            'title' => 'X',
-            'type' => 'simple',
-            'config_json' => '"a string"',
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 0]],
+        ]);
+    }
+
+    public function testRejectsBulkWithNoRanges(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/range/i');
+        RuleFormMapper::fromFormData([
+            'title' => 'X', 'type' => 'bulk',
+            'config_by_type' => ['bulk' => ['count_scope' => 'cumulative', 'ranges' => []]],
+        ]);
+    }
+
+    public function testRejectsSetWithBundleSizeLessThanTwo(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        RuleFormMapper::fromFormData([
+            'title' => 'X', 'type' => 'set',
+            'config_by_type' => ['set' => ['bundle_size' => 1, 'method' => 'set_price', 'value' => 50]],
+        ]);
+    }
+
+    public function testRejectsCrossCategoryWithOneGroup(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        RuleFormMapper::fromFormData([
+            'title' => 'X', 'type' => 'cross_category',
+            'config_by_type' => [
+                'cross_category' => [
+                    'groups' => [['name' => 'A', 'category_ids' => [1], 'min_qty' => 1]],
+                    'reward' => ['method' => 'percentage', 'value' => 10],
+                ],
+            ],
         ]);
     }
 
@@ -160,22 +193,34 @@ final class RuleFormMapperTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/starts_at/i');
         RuleFormMapper::fromFormData([
-            'title' => 'X',
-            'type' => 'simple',
-            'config_json' => '{}',
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 10]],
             'starts_at' => 'tomorrow',
         ]);
     }
 
-    public function testAcceptsValidDateFormat(): void
+    public function testAcceptsValidDateRangeAndUsageLimit(): void
     {
         $rule = RuleFormMapper::fromFormData([
-            'title' => 'X',
-            'type' => 'simple',
-            'config_json' => '{}',
-            'starts_at' => '2026-04-15 10:00:00',
-            'ends_at' => '2026-04-30 23:59:59',
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 10]],
+            'starts_at'   => '2026-04-15 00:00:00',
+            'ends_at'     => '2026-04-30 23:59:59',
+            'usage_limit' => '100',
         ]);
-        self::assertSame('2026-04-15 10:00:00', $rule->getStartsAt());
+        self::assertSame('2026-04-15 00:00:00', $rule->getStartsAt());
+        self::assertSame('2026-04-30 23:59:59', $rule->getEndsAt());
+        self::assertSame(100, $rule->getUsageLimit());
+    }
+
+    public function testNotesIsAlwaysNull(): void
+    {
+        // notes is a dev-internal field; never accepted from POST.
+        $rule = RuleFormMapper::fromFormData([
+            'title' => 'X', 'type' => 'simple',
+            'config_by_type' => ['simple' => ['method' => 'percentage', 'value' => 10]],
+            'notes' => 'should be ignored',
+        ]);
+        self::assertNull($rule->getNotes());
     }
 }
