@@ -15,11 +15,6 @@
     position: relative;
     overflow: hidden;
 }
-/* Coloured left accent per section, identified by order-of-appearance */
-.pd-rule-editor .pd-section:nth-of-type(1) { border-left: 4px solid #2271b1; }
-.pd-rule-editor .pd-section:nth-of-type(2) { border-left: 4px solid #7c3aed; }
-.pd-rule-editor .pd-section:nth-of-type(3) { border-left: 4px solid #16a34a; }
-.pd-rule-editor .pd-section:nth-of-type(4) { border-left: 4px solid #ea580c; }
 
 .pd-rule-editor .pd-section-title {
     margin: 0 0 16px;
