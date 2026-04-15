@@ -195,6 +195,9 @@
         var idx = nextIndex($container);
         var html = $tpl.html().replace(/__INDEX__/g, idx);
         $container.append(html);
+        // Any .wc-product-search / .pd-category-select / .pd-tag-select inside
+        // the newly appended row needs its selectWoo instance attached.
+        initEnhancedSelects($container);
     }
 
     function addXCatGroupRow($container) {
@@ -316,6 +319,14 @@
             });
         }
     }
+
+    // --- Set strategy: value hint swap based on selected method ---
+    $(document).on('change', '.pd-set-method', function () {
+        var method = $(this).val();
+        $('.pd-set-value-hint').each(function () {
+            $(this).toggle($(this).data('for') === method);
+        });
+    });
 
     // --- Shipping method chip picker (free shipping strategy) ---
     $(document).on('change', '.pd-shipping-chip input[type="checkbox"]', function () {
