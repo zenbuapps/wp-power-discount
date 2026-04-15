@@ -21,6 +21,7 @@ use PowerDiscount\Condition\UserRoleCondition;
 use PowerDiscount\Admin\AddonActivationPage;
 use PowerDiscount\Admin\AddonAjaxController;
 use PowerDiscount\Admin\AddonMenu;
+use PowerDiscount\Admin\AddonProductMetabox;
 use PowerDiscount\Admin\AddonRuleEditPage;
 use PowerDiscount\Admin\AddonRulesListPage;
 use PowerDiscount\Admin\AdminMenu;
@@ -149,6 +150,7 @@ final class Plugin
             (new AdminMenu($rulesRepo, $listPage, $editPage, $reportsPage, $addonMenu))->register();
             (new AjaxController($rulesRepo))->register();
             (new AddonAjaxController($addonRulesRepo))->register();
+            (new AddonProductMetabox($addonRulesRepo))->register();
             (new Notices())->register();
             $addonMenu->register();
         }

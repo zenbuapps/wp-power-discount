@@ -552,3 +552,49 @@
     font-weight: bold;
     font-size: 16px;
 }
+
+/* === 加價購 product metabox === */
+.pd-addon-metabox h4 {
+    margin: 12px 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #64748b;
+}
+.pd-addon-metabox-list {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+}
+.pd-addon-metabox-list li {
+    padding: 4px 0;
+    line-height: 1.5;
+}
+.pd-addon-metabox-list label {
+    cursor: pointer;
+    font-size: 13px;
+}
+.pd-addon-metabox-attach {
+    margin-top: 12px;
+}
+.pd-addon-metabox-attach label {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+}
+.pd-addon-metabox-attach-select {
+    width: 100%;
+    margin-top: 4px;
+}
+.pd-addon-metabox-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+}
+.pd-addon-metabox-help {
+    color: #6b7280;
+    font-size: 12px;
+    margin: 0 0 8px;
+}

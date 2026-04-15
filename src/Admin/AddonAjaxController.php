@@ -19,7 +19,59 @@ final class AddonAjaxController
     {
         add_action('wp_ajax_pd_toggle_addon_rule_status', [$this, 'toggleStatus']);
         add_action('wp_ajax_pd_reorder_addon_rules', [$this, 'reorder']);
-        // pd_toggle_addon_metabox_rule is wired by Task D1 on this same class.
+        add_action('wp_ajax_pd_toggle_addon_metabox_rule', [$this, 'toggleMetaboxRule']);
+    }
+
+    public function toggleMetaboxRule(): void
+    {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(['message' => 'Permission denied'], 403);
+        }
+        check_ajax_referer('power_discount_admin', 'nonce');
+
+        $ruleId    = isset($_POST['rule_id']) ? (int) $_POST['rule_id'] : 0;
+        $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : 0;
+        $role      = isset($_POST['role']) ? (string) $_POST['role'] : '';
+        $attach    = !empty($_POST['attach']);
+
+        $rule = $this->rules->findById($ruleId);
+        if ($rule === null || $productId <= 0 || !in_array($role, ['target', 'addon'], true)) {
+            wp_send_json_error(['message' => 'Invalid request'], 400);
+        }
+
+        $targets = $rule->getTargetProductIds();
+        $items = array_map(static fn ($i) => $i->toArray(), $rule->getAddonItems());
+
+        if ($role === 'target') {
+            if ($attach && !in_array($productId, $targets, true)) {
+                $targets[] = $productId;
+            } elseif (!$attach) {
+                $targets = array_values(array_filter($targets, static fn (int $id): bool => $id !== $productId));
+            }
+        } else {
+            // role === 'addon'
+            if ($attach && !$rule->containsAddon($productId)) {
+                // Default special_price = 0; user should set it via the rule edit page
+                $items[] = ['product_id' => $productId, 'special_price' => 0];
+            } elseif (!$attach) {
+                $items = array_values(array_filter(
+                    $items,
+                    static fn ($i) => (int) ($i['product_id'] ?? 0) !== $productId
+                ));
+            }
+        }
+
+        $updated = new AddonRule([
+            'id'                     => $rule->getId(),
+            'title'                  => $rule->getTitle(),
+            'status'                 => $rule->getStatus(),
+            'priority'               => $rule->getPriority(),
+            'addon_items'            => $items,
+            'target_product_ids'     => $targets,
+            'exclude_from_discounts' => $rule->isExcludeFromDiscounts(),
+        ]);
+        $this->rules->update($updated);
+        wp_send_json_success();
     }
 
     public function toggleStatus(): void
