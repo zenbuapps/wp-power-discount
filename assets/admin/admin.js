@@ -293,7 +293,28 @@
                 }
             });
         });
-        // Products (use WC's own handler)
+        // Products (Power Discount's own handler — supports browse on empty query)
+        $scope.find('.pd-product-select:not(.enhanced)').each(function () {
+            var $sel = $(this);
+            $sel.addClass('enhanced');
+            $sel.selectWoo({
+                placeholder: $sel.data('placeholder') || 'Select',
+                minimumInputLength: 0,
+                allowClear: false,
+                ajax: {
+                    url: PowerDiscountAdmin.ajaxUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { action: 'pd_search_products', q: params.term || '', nonce: PowerDiscountAdmin.nonce };
+                    },
+                    processResults: function (data) {
+                        return { results: (data && data.data) || [] };
+                    }
+                }
+            });
+        });
+        // Products (legacy — use WC's own handler for fields that opt in)
         if (typeof $.fn.selectWoo !== 'undefined') {
             $scope.find('.wc-product-search:not(.enhanced)').each(function () {
                 $(this).addClass('enhanced');

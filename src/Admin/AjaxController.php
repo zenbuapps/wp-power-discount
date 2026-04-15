@@ -21,6 +21,45 @@ final class AjaxController
         add_action('wp_ajax_pd_toggle_rule_status', [$this, 'toggleStatus']);
         add_action('wp_ajax_pd_search_terms', [$this, 'searchTerms']);
         add_action('wp_ajax_pd_reorder_rules', [$this, 'reorderRules']);
+        add_action('wp_ajax_pd_search_products', [$this, 'searchProducts']);
+    }
+
+    /**
+     * Browse + search products. Returns latest 20 published products when the
+     * query is empty, so selectWoo can open with a useful default list; on
+     * non-empty query runs a LIKE search against the title.
+     */
+    public function searchProducts(): void
+    {
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(['message' => 'Permission denied'], 403);
+        }
+        check_ajax_referer('power_discount_admin', 'nonce');
+
+        $q = isset($_GET['q']) ? sanitize_text_field((string) $_GET['q']) : '';
+
+        $args = [
+            'post_type'      => ['product'],
+            'post_status'    => 'publish',
+            'posts_per_page' => 20,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ];
+        if ($q !== '') {
+            $args['s'] = $q;
+        }
+
+        $results = [];
+        $query = new \WP_Query($args);
+        foreach ($query->posts as $post) {
+            $results[] = [
+                'id'   => (int) $post->ID,
+                'text' => sprintf('#%d — %s', (int) $post->ID, get_the_title($post)),
+            ];
+        }
+        wp_reset_postdata();
+
+        wp_send_json_success($results);
     }
 
     public function reorderRules(): void

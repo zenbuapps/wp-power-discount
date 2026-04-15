@@ -77,9 +77,8 @@ if (!empty($targetIds) && function_exists('wc_get_product')) {
             <div class="pd-repeater" data-pd-repeater="addon-item">
                 <template class="pd-repeater-template">
                     <div class="pd-repeater-row pd-addon-item-row">
-                        <select name="addon_items[__INDEX__][product_id]" class="wc-product-search"
-                                data-placeholder="<?php echo esc_attr__('搜尋商品…', 'power-discount'); ?>"
-                                data-action="woocommerce_json_search_products_and_variations"
+                        <select name="addon_items[__INDEX__][product_id]" class="pd-product-select"
+                                data-placeholder="<?php echo esc_attr__('點擊選擇或輸入關鍵字搜尋…', 'power-discount'); ?>"
                                 style="min-width:320px;"></select>
                         <input type="number" name="addon_items[__INDEX__][special_price]" value="" step="0.01" min="0" class="small-text" placeholder="<?php echo esc_attr__('特價', 'power-discount'); ?>">
                         <button type="button" class="button button-small pd-repeater-remove">×</button>
@@ -94,9 +93,8 @@ if (!empty($targetIds) && function_exists('wc_get_product')) {
                     }
                 ?>
                     <div class="pd-repeater-row pd-addon-item-row">
-                        <select name="addon_items[<?php echo (int) $index; ?>][product_id]" class="wc-product-search"
-                                data-placeholder="<?php echo esc_attr__('搜尋商品…', 'power-discount'); ?>"
-                                data-action="woocommerce_json_search_products_and_variations"
+                        <select name="addon_items[<?php echo (int) $index; ?>][product_id]" class="pd-product-select"
+                                data-placeholder="<?php echo esc_attr__('點擊選擇或輸入關鍵字搜尋…', 'power-discount'); ?>"
                                 style="min-width:320px;">
                             <?php if ($pid > 0): ?>
                                 <option value="<?php echo (int) $pid; ?>" selected><?php echo esc_html($name ?: '#' . $pid); ?></option>
@@ -112,13 +110,12 @@ if (!empty($targetIds) && function_exists('wc_get_product')) {
         </div>
 
         <div class="pd-section">
-            <h2 class="pd-section-title"><?php esc_html_e('3. 投放目標商品', 'power-discount'); ?></h2>
-            <p class="description"><?php esc_html_e('選擇哪些商品的商品頁面要顯示這批加價購選項。顧客只有在瀏覽這些目標商品時才會看到加價購專區。', 'power-discount'); ?></p>
+            <h2 class="pd-section-title"><?php esc_html_e('3. 顯示於哪些商品', 'power-discount'); ?></h2>
+            <p class="description"><?php esc_html_e('這組加價購會出現在哪些商品的頁面上？可以選多個商品，點擊欄位即可從最新上架的商品中挑選，或直接輸入關鍵字搜尋。', 'power-discount'); ?></p>
 
-            <select name="target_product_ids[]" class="wc-product-search" multiple
-                    data-placeholder="<?php echo esc_attr__('搜尋目標商品…', 'power-discount'); ?>"
-                    data-action="woocommerce_json_search_products_and_variations"
-                    style="min-width:480px;">
+            <select name="target_product_ids[]" class="pd-product-select" multiple
+                    data-placeholder="<?php echo esc_attr__('點擊選擇或輸入關鍵字搜尋…', 'power-discount'); ?>"
+                    style="min-width:480px; width:100%; max-width:720px;">
                 <?php foreach ($targetProducts as $tid => $tname): ?>
                     <option value="<?php echo (int) $tid; ?>" selected><?php echo esc_html($tname); ?></option>
                 <?php endforeach; ?>
