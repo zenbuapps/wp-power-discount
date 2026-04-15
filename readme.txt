@@ -6,7 +6,7 @@ Tags: woocommerce, discount, sale, promotion, taiwan
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,10 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 目前 Reports 頁面可依日期區間查詢統計。未來版本會加上 CSV 匯出功能。
 
 == Changelog ==
+
+= 1.0.2 =
+* 整合 Plugin Update Checker，WordPress 外掛頁面可直接檢查並一鍵升級 GitHub 最新版本
+* 往後新版本只要在 zenbuapps/power-discount 發佈 Release 就會自動推播給所有安裝的站台
 
 = 1.0.1 =
 * 修正新增規則時若欄位驗證失敗會遺失使用者輸入的問題，改為在原頁面直接顯示錯誤並保留所有已填內容
