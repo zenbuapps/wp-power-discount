@@ -499,3 +499,56 @@
     font-size: 14px;
     line-height: 2;
 }
+
+/* === 加價購 list table === */
+.wp-list-table.addon_rules,
+.wp-list-table.widefat.addon_rules {
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    overflow: visible;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.wp-list-table.addon_rules thead th,
+.wp-list-table.addon_rules tfoot th {
+    background: #f6f7f7;
+    color: #1d2327;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 2px solid #dcdcde;
+}
+.wp-list-table.addon_rules thead th:first-child { border-top-left-radius: 8px; }
+.wp-list-table.addon_rules thead th:last-child { border-top-right-radius: 8px; }
+.wp-list-table.addon_rules tbody td {
+    padding: 14px 12px;
+    vertical-align: middle;
+}
+.wp-list-table.addon_rules tbody tr:hover {
+    background: #f8fafc;
+}
+.wp-list-table.addon_rules .column-order {
+    width: 88px;
+    text-align: left;
+    white-space: nowrap;
+}
+.wp-list-table.addon_rules .column-status {
+    width: 80px;
+    text-align: center;
+}
+.wp-list-table.addon_rules .column-exclusive {
+    width: 100px;
+    text-align: center;
+}
+.pd-addons-list .page-title-action.pd-deactivate-link {
+    background: #fff;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+.pd-addons-list .page-title-action.pd-deactivate-link:hover {
+    background: #fef2f2;
+    color: #991b1b;
+}
+.pd-addon-exclusive-yes {
+    color: #16a34a;
+    font-weight: bold;
+    font-size: 16px;
+}

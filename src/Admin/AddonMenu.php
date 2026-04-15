@@ -30,7 +30,8 @@ final class AddonMenu
     {
         add_action('admin_post_pd_activate_addons', [$this->activationPage, 'handleActivate']);
         add_action('admin_post_pd_deactivate_addons', [$this->activationPage, 'handleDeactivate']);
-        // B2 and C2 will wire up pd_save_addon_rule and pd_delete_addon_rule here
+        add_action('admin_post_pd_delete_addon_rule', [$this->listPage, 'handleDelete']);
+        // C2 will wire up pd_save_addon_rule here
     }
 
     public static function isEnabled(): bool
