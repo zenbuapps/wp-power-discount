@@ -6,7 +6,7 @@ Tags: woocommerce, discount, sale, promotion, taiwan
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,9 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 目前 Reports 頁面可依日期區間查詢統計。未來版本會加上 CSV 匯出功能。
 
 == Changelog ==
+
+= 1.0.3 =
+* 折扣規則列表的「新增規則」按鈕改回 WordPress 原生風格，與「新增文章」外觀一致
 
 = 1.0.2 =
 * 整合 Plugin Update Checker，WordPress 外掛頁面可直接檢查並一鍵升級 GitHub 最新版本
