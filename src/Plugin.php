@@ -48,6 +48,7 @@ use PowerDiscount\Filter\OnSaleFilter;
 use PowerDiscount\Filter\ProductsFilter;
 use PowerDiscount\Filter\TagsFilter;
 use PowerDiscount\I18n\Loader as I18nLoader;
+use PowerDiscount\Integration\AddonFrontend;
 use PowerDiscount\Integration\AppliedRulesDisplay;
 use PowerDiscount\Integration\CartContextBuilder;
 use PowerDiscount\Integration\CartHooks;
@@ -109,6 +110,7 @@ final class Plugin
         $db = new WpdbAdapter($wpdb);
         $rulesRepo = new RuleRepository($db);
         $orderDiscountsRepo = new OrderDiscountRepository($db);
+        $addonRulesRepo = new AddonRuleRepository($db);
 
         $calculator = new Calculator(
             $strategies,
@@ -135,13 +137,13 @@ final class Plugin
         (new FreeShippingBar($rulesRepo, $builder, $shippingProgressHelper))->register();
         (new GiftProgressBar($rulesRepo, $builder, $giftProgressHelper))->register();
         (new PriceTableShortcode($rulesRepo))->register();
+        (new AddonFrontend($addonRulesRepo))->register();
 
         if (is_admin()) {
             $listPage = new RulesListPage($rulesRepo);
             $editPage = new RuleEditPage($rulesRepo);
             $reportsPage = new ReportsPage(new ReportsRepository($db));
 
-            $addonRulesRepo   = new AddonRuleRepository($db);
             $addonActivation  = new AddonActivationPage();
             $addonListPage    = new AddonRulesListPage($addonRulesRepo);
             $addonEditPage    = new AddonRuleEditPage($addonRulesRepo);
