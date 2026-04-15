@@ -6,7 +6,7 @@ Tags: woocommerce, discount, sale, promotion, taiwan
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,18 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 目前 Reports 頁面可依日期區間查詢統計。未來版本會加上 CSV 匯出功能。
 
 == Changelog ==
+
+= 1.1.0 =
+* 新功能：加價購（Add-on Purchase）子系統
+  - 全新「加價購」選單，支援 opt-in 啟用
+  - 可建立加價購規則：一批商品（各自特價）投放到一批目標商品頁面
+  - 目標商品的 single product 頁面自動顯示加價購專區
+  - 詳細資訊 modal：商品圖、介紹、sticky「選擇加購」按鈕
+  - 雙向設定：可在規則管理頁或個別商品編輯頁調整
+  - 可選擇將加價購商品排除於其他折扣規則之外（獨立定價）
+  - 拖拉調整規則優先順序、一鍵啟用/停用
+  - 購物車自動顯示「加購」標記，數量鎖定為 1
+  - 購物車價格計算時套用規則特價
 
 = 1.0.3 =
 * 折扣規則列表的「新增規則」按鈕改回 WordPress 原生風格，與「新增文章」外觀一致
