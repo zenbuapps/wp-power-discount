@@ -5,7 +5,7 @@ namespace PowerDiscount\Install;
 
 final class Migrator
 {
-    private const SCHEMA_VERSION = '2';
+    private const SCHEMA_VERSION = '3';
     private const OPTION_KEY = 'power_discount_schema_version';
 
     public static function migrate(): void
@@ -65,6 +65,23 @@ final class Migrator
 
         dbDelta($rules_sql);
         dbDelta($order_discounts_sql);
+
+        $addon_rules_table = $wpdb->prefix . 'pd_addon_rules';
+        $addon_rules_sql = "CREATE TABLE {$addon_rules_table} (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            title VARCHAR(255) NOT NULL,
+            status TINYINT(1) NOT NULL DEFAULT 1,
+            priority INT NOT NULL DEFAULT 10,
+            addon_items LONGTEXT NOT NULL,
+            target_product_ids LONGTEXT NOT NULL,
+            exclude_from_discounts TINYINT(1) NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL,
+            PRIMARY KEY  (id),
+            KEY idx_status_priority (status, priority)
+        ) {$charset_collate};";
+
+        dbDelta($addon_rules_sql);
 
         update_option(self::OPTION_KEY, self::SCHEMA_VERSION, false);
     }
