@@ -36,7 +36,17 @@ final class AddonFrontend
             [],
             POWER_DISCOUNT_VERSION
         );
-        // E2 will enqueue assets/frontend/addon.js here.
+        wp_enqueue_script(
+            'power-discount-addon',
+            POWER_DISCOUNT_URL . 'assets/frontend/addon.js',
+            ['jquery'],
+            POWER_DISCOUNT_VERSION,
+            true
+        );
+        wp_localize_script('power-discount-addon', 'PowerDiscountAddon', [
+            'confirmSelect' => __('選擇加購', 'power-discount'),
+            'cancelSelect'  => __('取消加購', 'power-discount'),
+        ]);
     }
 
     public function renderWidget(): void
