@@ -6,7 +6,7 @@ Tags: woocommerce, discount, sale, promotion, taiwan
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.3
+Stable tag: 1.1.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,10 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 目前 Reports 頁面可依日期區間查詢統計。未來版本會加上 CSV 匯出功能。
 
 == Changelog ==
+
+= 1.1.1 =
+* 修正條件免運規則在「已套用折扣」面板顯示 -NT$1 的問題，現在會顯示實際節省的運費金額
+* 免運節省金額依「顧客選擇的運送方式」計算，並以購物車商品雜湊在 WC session 中持久化，避免 shipping rate cache 命中時讀不到數值
 
 = 1.0.3 =
 * 折扣規則列表的「新增規則」按鈕改回 WordPress 原生風格，與「新增文章」外觀一致
