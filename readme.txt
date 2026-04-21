@@ -6,7 +6,7 @@ Tags: woocommerce, discount, sale, promotion, taiwan
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,10 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 目前 Reports 頁面可依日期區間查詢統計。未來版本會加上 CSV 匯出功能。
 
 == Changelog ==
+
+= 1.1.3 =
+* 修正「數量階梯折扣（Bulk）」與「第 N 件 X 折（Nth item）」規則編輯畫面的「＋ 新增階梯」按鈕點下去沒反應的問題。
+* 原因：兩種策略的 repeater 模板 `<template>` 被放在 `.pd-repeater` 容器外，JS 依循契約只在容器內尋找模板，導致找不到模板而無法新增階梯。現已將模板搬入容器內。
 
 = 1.1.2 =
 * 修正「修改折扣規則後，已有商品的購物車顧客看到的運費與折扣仍是舊規則」的問題。以前必須請顧客清空購物車再加入一次商品才會套用新規則，有漏收或多收運費的風險。
