@@ -9,12 +9,13 @@
         }
         var id = $checkbox.data('id');
         var nonce = $checkbox.data('nonce');
+        var ajaxAction = $checkbox.data('ajax-action') || 'pd_toggle_rule_status';
         if (!id) {
             return;
         }
         $checkbox.prop('disabled', true);
         $.post(PowerDiscountAdmin.ajaxUrl, {
-            action: 'pd_toggle_rule_status',
+            action: ajaxAction,
             id: id,
             nonce: nonce
         }).done(function () {
@@ -194,6 +195,9 @@
         var idx = nextIndex($container);
         var html = $tpl.html().replace(/__INDEX__/g, idx);
         $container.append(html);
+        // Any .wc-product-search / .pd-category-select / .pd-tag-select inside
+        // the newly appended row needs its selectWoo instance attached.
+        initEnhancedSelects($container);
     }
 
     function addXCatGroupRow($container) {
@@ -289,7 +293,28 @@
                 }
             });
         });
-        // Products (use WC's own handler)
+        // Products (Power Discount's own handler — supports browse on empty query)
+        $scope.find('.pd-product-select:not(.enhanced)').each(function () {
+            var $sel = $(this);
+            $sel.addClass('enhanced');
+            $sel.selectWoo({
+                placeholder: $sel.data('placeholder') || 'Select',
+                minimumInputLength: 0,
+                allowClear: false,
+                ajax: {
+                    url: PowerDiscountAdmin.ajaxUrl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { action: 'pd_search_products', q: params.term || '', nonce: PowerDiscountAdmin.nonce };
+                    },
+                    processResults: function (data) {
+                        return { results: (data && data.data) || [] };
+                    }
+                }
+            });
+        });
+        // Products (legacy — use WC's own handler for fields that opt in)
         if (typeof $.fn.selectWoo !== 'undefined') {
             $scope.find('.wc-product-search:not(.enhanced)').each(function () {
                 $(this).addClass('enhanced');
@@ -316,6 +341,14 @@
         }
     }
 
+    // --- Set strategy: value hint swap based on selected method ---
+    $(document).on('change', '.pd-set-method', function () {
+        var method = $(this).val();
+        $('.pd-set-value-hint').each(function () {
+            $(this).toggle($(this).data('for') === method);
+        });
+    });
+
     // --- Shipping method chip picker (free shipping strategy) ---
     $(document).on('change', '.pd-shipping-chip input[type="checkbox"]', function () {
         $(this).closest('.pd-shipping-chip').toggleClass('is-selected', this.checked);
@@ -329,9 +362,9 @@
         $wrap.find('.pd-schedule-monthly').toggle(mode === 'monthly');
     });
 
-    // --- Drag & drop reorder on rules list ---
-    function initRulesSortable() {
-        var $tbody = $('.pd-rules-list .wp-list-table tbody');
+    // --- Drag & drop reorder on rules list (generic) ---
+    function initSortableTable(selector, reorderAction) {
+        var $tbody = $(selector + ' .wp-list-table tbody');
         if (!$tbody.length || typeof $tbody.sortable !== 'function') {
             return;
         }
@@ -356,7 +389,7 @@
                 }).get();
                 $tbody.css('opacity', 0.5);
                 $.post(PowerDiscountAdmin.ajaxUrl, {
-                    action: 'pd_reorder_rules',
+                    action: reorderAction,
                     nonce: PowerDiscountAdmin.nonce,
                     ids: ids
                 }).done(function () {
@@ -371,7 +404,10 @@
 
     $(function () {
         initEnhancedSelects();
-        initRulesSortable();
+        // Main rules list uses .pd-rules-list; addon list has both classes
+        // for shared CSS, so exclude it here to avoid double-binding.
+        initSortableTable('.pd-rules-list:not(.pd-addons-list)', 'pd_reorder_rules');
+        initSortableTable('.pd-addons-list', 'pd_reorder_addon_rules');
     });
 
 })(jQuery);
